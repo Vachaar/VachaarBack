@@ -1,0 +1,17 @@
+### Django ###
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+.idea
+venv
+db.sqlite3
+credit/static
+credit/celerybeat-schedule
+credit/celerybeat.pid
+docker-compose.yml
+docker-compose-pro.yml
+*.sql.gz
+.git
+.gitlab-ci.yml

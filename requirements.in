@@ -1,0 +1,12 @@
+django
+django-cors-headers
+django-filter
+djangorestframework
+djangorestframework-simplejwt
+drf-spectacular[sidecar]
+envparse
+pip-tools
+requests
+factory-boy
+psycopg2-binary
+Pillow

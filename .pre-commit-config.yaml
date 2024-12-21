@@ -1,0 +1,39 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      - id: no-commit-to-branch
+        args:
+          - -b main
+      - id: check-ast
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: trailing-whitespace
+        exclude: .gitlab
+      - id: end-of-file-fixer
+        files: py
+      - id: check-json
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: detect-private-key
+        exclude: '.*.env.*'
+
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 23.10.1
+    hooks:
+      - id: black
+        exclude: '/migrations/'
+        args:
+          - --line-length=80
+          - --target-version=py36
+          - --exclude='/(
+            migrations
+            | __pycache__
+            | \.git
+            | \.tox
+            | \.venv
+            | build
+            | dist
+            | docs
+            | backup
+            )/'

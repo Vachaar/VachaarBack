@@ -1,0 +1,29 @@
+services:
+
+  vachaar_db:
+    image: postgres:15
+    container_name: vachaar_db
+    env_file:
+      - .env
+    volumes:
+      - vachaar_db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  vachaar_app:
+    container_name: vachaar_app
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - vachaar_db
+    volumes:
+      - .:/app
+    ports:
+      - "80:80"
+    command: [ "python", "manage.py", "runserver", "0:80" ]
+    env_file:
+      - .env
+
+volumes:
+  vachaar_db_data:
