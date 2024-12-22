@@ -21,17 +21,17 @@ class User(AbstractUser):
         ],
         null=True,
         blank=True,
-        db_index=True,
+        db_index=False,
         verbose_name="National ID",
     )
-    phone: Optional[str] = models.CharField(
+    phone: str = models.CharField(
         max_length=11,
         validators=[
             UserValidator.phone_validator,
         ],
-        null=True,
-        blank=True,
-        db_index=True,
+        null=False,
+        blank=False,
+        db_index=False,
         verbose_name="Phone Number",
     )
     address: Optional[str] = models.TextField(

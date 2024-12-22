@@ -1,5 +1,3 @@
-from typing import Optional
-
 from django.db import models
 
 from product.models.item import Item
@@ -14,13 +12,11 @@ class Banner(BaseModel):
     and includes an image file to represent the banner visually.
     """
 
-    item_id: Optional[Item] = models.OneToOneField(
+    item_id: Item = models.ForeignKey(
         Item,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_query_name="banner",
-        related_name="banner",
+        null=False,
+        blank=False,
+        on_delete=models.CASCADE,
         verbose_name="Associated Item",
         help_text="The item linked to this banner (if any).",
     )
