@@ -16,35 +16,37 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.contrib.admin.views.decorators import staff_member_required
-from django.urls import path
+from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from VachaarBack.settings import SHOW_SWAGGER
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("product/", include("product.urls"))
 ]
 
-if SHOW_SWAGGER:
-    urlpatterns += [
-        # doc
-        path(
-            "api/schema/",
-            staff_member_required(
-                SpectacularAPIView.as_view(
-                    custom_settings={"SCHEMA_PATH_PREFIX": "/v1/"}
-                )
-            ),
-            name="schema",
-        ),
-        path(
-            "api/docs/",
-            staff_member_required(
-                SpectacularSwaggerView.as_view(url_name="schema")
-            ),
-            name="swagger-ui",
-        ),
-    ]
+# if SHOW_SWAGGER:
+#     urlpatterns += [
+#         # doc
+#         path(
+#             "api/schema/",
+#             staff_member_required(
+#                 SpectacularAPIView.as_view(
+#                     custom_settings={"SCHEMA_PATH_PREFIX": "/v1/"}
+#                 )
+#             ),
+#             name="schema",
+#         ),
+#         path(
+#             "api/docs/",
+#             # staff_member_required(
+#             #     SpectacularSwaggerView.as_view(url_name="schema")
+#             # ),
+#             SpectacularSwaggerView.as_view(url_name="schema"),
+#             name="swagger-ui",
+#         ),
+#     ]
 
 # Admin
 admin.site.site_header = "Vachaar Administration Panel"
