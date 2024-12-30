@@ -1,7 +1,5 @@
 from typing import Optional
-
 from django.db import models
-
 from product.models.category import Category
 from reusable.models import AmountField, BaseModel
 from user.models.user import User
@@ -18,11 +16,23 @@ class Item(BaseModel):
         verbose_name="Item Title",
     )
 
-    category_id: Optional[Category] = models.ForeignKey(
+    seller_user = models.ForeignKey(
+        User,
+        null=False,
+        blank=False,
+        default=None,
+        on_delete=models.PROTECT,
+        related_query_name="seller",
+        related_name="sold_items",
+        verbose_name="Seller",
+    )
+
+    category_id = models.ForeignKey(
         Category,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
+        null=False,
+        blank=False,
+        default=None,
+        on_delete=models.PROTECT,
         related_query_name="category",
         related_name="items",
         verbose_name="Category",
@@ -35,44 +45,6 @@ class Item(BaseModel):
     description: Optional[str] = models.TextField(
         blank=True,
         verbose_name="Item Description",
-    )
-
-    # Transaction status choices
-    ACTIVE: str = "Active"
-    RESERVED: str = "Reserved"
-    SOLD: str = "Sold"
-    BLOCKED: str = "Blocked"
-
-    TRANSACTION_STATUS_CHOICES = [
-        (ACTIVE, "Active"),
-        (RESERVED, "Reserved"),
-        (SOLD, "Sold"),
-        (BLOCKED, "Blocked"),
-    ]
-
-    transaction_status: str = models.CharField(
-        max_length=10,
-        choices=TRANSACTION_STATUS_CHOICES,
-        default=ACTIVE,
-        verbose_name="Transaction Status",
-    )
-
-    seller_user: Optional[User] = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_query_name="seller",
-        related_name="sold_items",
-        verbose_name="Seller",
-    )
-
-    reserver_user: Optional[User] = models.ForeignKey(
-        User,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_query_name="reserver",
-        related_name="reserved_items",
-        verbose_name="Reserver",
     )
 
     class Meta:

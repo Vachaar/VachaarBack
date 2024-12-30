@@ -1,12 +1,12 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.parsers import FileUploadParser
-from rest_framework.permissions import AllowAny
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from product.models.image import Image
+from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from product.models.image import Image
 
 
 class ImageUploadView(APIView):
@@ -17,7 +17,6 @@ class ImageUploadView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
-
         if 'file' not in request.FILES:
             return Response({"detail": "No file provided."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -29,7 +28,6 @@ class ImageUploadView(APIView):
             image_data=file.read(),
         )
         return Response({"id": image.id}, status=status.HTTP_201_CREATED)
-
 
 
 class ImageRawView(APIView):
