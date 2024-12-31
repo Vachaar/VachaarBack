@@ -191,7 +191,8 @@ LOGGING = {
 # JWT SETTINGS
 SIMPLE_JWT = {
     "ALGORITHM": "RS256",
-    "VERIFYING_KEY": env.str("JWT_VERIFYING_KEY"),
+    "SIGNING_KEY": open("private.key").read(),
+    "VERIFYING_KEY": open("public.key").read(),
     "USER_ID_FIELD": "sso_user_id",
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
@@ -222,3 +223,12 @@ SPECTACULAR_SETTINGS = {
 
 ENVIRONMENT_NAME = env.str("ENVIRONMENT_NAME", default="Vachaar")
 SHOW_SWAGGER = env.bool("SHOW_SWAGGER", default=False)
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")

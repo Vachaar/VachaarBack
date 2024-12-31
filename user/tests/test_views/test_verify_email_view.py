@@ -1,0 +1,95 @@
+from django.test import TestCase
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient
+
+from user.models.user import User
+
+
+class VerifyEmailViewTests(TestCase):
+    def test_verify_email_view_email_is_not_valid(self):
+        # Arrange
+        client = APIClient()
+        data = {"code": "123456"}  # Missing email
+        url = reverse("verify-email")
+
+        # Act
+        response = client.post(url, data)
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_verify_email_view_verification_code_is_required(self):
+        # Arrange
+        client = APIClient()
+        data = {"email": "test@example.com"}  # Missing code
+        url = reverse("verify-email")
+
+        # Act
+        response = client.post(url, data)
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_verify_email_view_user_not_found(self):
+        # Arrange
+        client = APIClient()
+        data = {"email": "nonexistent@example.com", "code": "123456"}
+        url = reverse("verify-email")
+
+        # Act
+        response = client.post(url, data)
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()["message"], "User not found.")
+
+    def test_verify_email_view_verification_code_is_not_valid(self):
+        # Arrange
+        client = APIClient()
+        email = "test@example.com"
+        password = "password"
+        phone = "09123456789"
+        user = User.objects.create(
+            email=email,
+            password=password,
+            phone=phone,
+            verification_code="123456",
+            verification_code_expires_at="2099-12-31T23:59:59Z",
+        )
+        data = {"email": email, "code": "wrongcode"}
+        url = reverse("verify-email")
+
+        # Act
+        response = client.post(url, data)
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_verify_email_view_successfully_verified(self):
+        # Arrange
+        client = APIClient()
+        email = "test@example.com"
+        password = "password"
+        phone = "09123456789"
+        user = User.objects.create(
+            email=email,
+            password=password,
+            phone=phone,
+            verification_code="123456",
+            verification_code_expires_at="2099-12-31T23:59:59Z",
+        )
+        data = {"email": email, "code": "123456"}
+        url = reverse("verify-email")
+
+        # Act
+        response = client.post(url, data)
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        user.refresh_from_db()
+        self.assertTrue(user.is_email_verified)
+
+        self.assertIsNone(user.verification_code)
+
+        self.assertIsNone(user.verification_code_expires_at)
