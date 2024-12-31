@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional
 
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
@@ -23,12 +23,34 @@ class UserManager(BaseUserManager):
     :type model: Type[Model]
     """
 
-    def create(self, email, password, phone, **kwargs):
-        user = self.model(username=email, email=email, phone=phone, **kwargs)
+    def create(
+            self,
+            email: str,
+            password: str,
+            phone: str,
+            **kwargs
+    ):
+        user = self.model(email=email, phone=phone, **kwargs)
+        user.username = email
         user.set_password(password)
         user.full_clean()
         user.save(using=self._db)
         return user
+
+    def create_superuser(
+            self,
+            email,
+            password,
+            phone,
+            **kwargs
+    ):
+        kwargs.setdefault("is_staff", True)
+        kwargs.setdefault("is_superuser", True)
+        if kwargs.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True.")
+        if kwargs.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
+        return self.create(email, password, phone, **kwargs)
 
 
 class User(AbstractUser):
@@ -90,7 +112,7 @@ class User(AbstractUser):
 
     objects = UserManager()
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ["phone"]
 
     class Meta:
         """
