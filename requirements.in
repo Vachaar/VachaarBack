@@ -10,3 +10,4 @@ requests
 factory-boy
 psycopg2-binary
 Pillow
+cryptography

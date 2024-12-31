@@ -16,13 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.contrib.admin.views.decorators import staff_member_required
-from django.urls import path
+from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from VachaarBack.settings import SHOW_SWAGGER
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("usr/", include("user.urls")),
 ]
 
 if SHOW_SWAGGER:

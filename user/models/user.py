@@ -1,19 +1,67 @@
 from typing import Optional, Tuple
 
+from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from user.services.validators import UserValidator
 
 
+class UserManager(BaseUserManager):
+    """
+    UserManager is a custom manager class for the user model that provides utility
+    methods for creating regular users and superusers.
+
+    This class extends the BaseUserManager class and includes methods for
+    streamlining the creation of users with hashed passwords while managing
+    additional user fields. It also ensures input validation and proper normalization
+    of required fields, such as email.
+
+    :ivar _db: Database alias to use.
+    :type _db: Any
+    :ivar model: Reference to the user model associated with this manager.
+    :type model: Type[Model]
+    """
+
+    def create(self, email, password, phone, **kwargs):
+        user = self.model(username=email, email=email, phone=phone, **kwargs)
+        user.set_password(password)
+        user.full_clean()
+        user.save(using=self._db)
+        return user
+
+
 class User(AbstractUser):
     """
     Custom User model extending Django's AbstractUser.
 
-    This model adds additional fields for `national_id`, `phone`, `address`,
+    This model adds additional fields for `sso_user_id`, `email`, `national_id`, `phone`, `address`,
     and `role`, while using validators to ensure the integrity of the data.
     """
 
+    sso_user_id = models.BigAutoField(
+        unique=True,
+        primary_key=True,
+        db_index=True,
+    )
+    email = models.EmailField(
+        unique=True,
+        null=False,
+        blank=False,
+        validators=[
+            UserValidator.email_validator,
+        ],
+    )
+    is_email_verified = models.BooleanField(default=False)
+    verification_code = models.CharField(
+        max_length=6,
+        blank=True,
+        null=True,
+    )
+    verification_code_expires_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
     national_id: Optional[str] = models.CharField(
         max_length=10,
         validators=[
@@ -40,24 +88,9 @@ class User(AbstractUser):
         verbose_name="Address",
     )
 
-    # Role definition
-    NORMAL_USER: str = "User"
-    MANAGER_USER: str = "Manager"
-    STAFF_USER: str = "Staff"
-
-    ROLE_CHOICES: Tuple[Tuple[str, str], ...] = (
-        (NORMAL_USER, "user"),
-        (MANAGER_USER, "manager"),
-        (STAFF_USER, "staff"),
-    )
-
-    role: str = models.CharField(
-        max_length=10,
-        choices=ROLE_CHOICES,
-        default=NORMAL_USER,
-        db_index=True,
-        verbose_name="Role",
-    )
+    objects = UserManager()
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
 
     class Meta:
         """
@@ -75,3 +108,10 @@ class User(AbstractUser):
             str: Displays the user's first name, last name, and email.
         """
         return f"{self.first_name} {self.last_name} ({self.email})"
+
+    @staticmethod
+    def get_user_by_email(email: str) -> Optional["User"]:
+        try:
+            return User.objects.get(email=email)
+        except User.DoesNotExist:
+            return None

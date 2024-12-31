@@ -10,6 +10,29 @@ class UserValidator:
     """
 
     @staticmethod
+    def email_validator(value: Any) -> str:
+        """
+        Validates if the given value is a valid email address.
+
+        A valid email address contains a local part, an '@' symbol,
+        and a domain part (e.g., "example@domain.com").
+
+        Args:
+            value (Any): The value to be validated.
+
+        Returns:
+            str: The validated email address.
+
+        Raises:
+            ValidationError: If the value is not a valid email address.
+        """
+        return BaseService.regex_validator(
+            value=value,
+            pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$",
+            error_message="Invalid email address",
+        )
+
+    @staticmethod
     def phone_validator(value: Any) -> str:
         """
         Validates if the given value is a valid phone number.
