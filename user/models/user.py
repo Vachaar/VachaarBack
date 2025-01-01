@@ -23,13 +23,7 @@ class UserManager(BaseUserManager):
     :type model: Type[Model]
     """
 
-    def create(
-            self,
-            email: str,
-            password: str,
-            phone: str,
-            **kwargs
-    ):
+    def create(self, email: str, password: str, phone: str, **kwargs):
         user = self.model(email=email, phone=phone, **kwargs)
         user.username = email
         user.set_password(password)
@@ -37,13 +31,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(
-            self,
-            email,
-            password,
-            phone,
-            **kwargs
-    ):
+    def create_superuser(self, email, password, phone, **kwargs):
         kwargs.setdefault("is_staff", True)
         kwargs.setdefault("is_superuser", True)
         if kwargs.get("is_staff") is not True:
