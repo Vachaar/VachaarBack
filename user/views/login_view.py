@@ -18,7 +18,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         user = self._authenticate_user(request)
         if not user:
             self.get_throttles()[0].throttle_failure(request)
-            raise InvalidCredentialsException
+            raise InvalidCredentialsException()
 
         tokens = super().post(request, *args, **kwargs).data
 
