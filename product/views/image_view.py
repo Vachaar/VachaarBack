@@ -29,7 +29,7 @@ class ImageUploadView(APIView):
 
         allowed_types = ['image/jpeg', 'image/png', 'image/gif']
         type_validation_response = validate_file_type(file, allowed_types)
-        if type_validation_response:
+        if type_validation_response is not None:
             return type_validation_response
 
         image = Image.objects.create(
