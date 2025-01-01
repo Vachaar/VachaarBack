@@ -70,10 +70,10 @@ class ResendVerificationEmailCodeView(generics.GenericAPIView):
         user = User.get_user_by_email(email)
 
         if not user:
-            raise UserNotFoundException
+            raise UserNotFoundException()
 
         if user.is_email_verified:
-            raise EmailAlreadyVerifiedException
+            raise EmailAlreadyVerifiedException()
 
         send_verification_email(user)
         return Response(
