@@ -9,7 +9,6 @@ class ItemCreationSerializer(serializers.Serializer):
     Serializer to validate item creation data, including banners and category.
     """
     title = serializers.CharField(max_length=255)
-    seller_user_id = serializers.IntegerField()
     category_id = serializers.IntegerField()
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
     description = serializers.CharField(allow_blank=True, required=False)

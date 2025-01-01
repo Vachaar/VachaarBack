@@ -67,7 +67,7 @@ class ItemCreateView(APIView):
         serializer = ItemCreationSerializer(data=request.data)
         if serializer.is_valid():
             try:
-                created_item = create_item_with_banners(serializer.validated_data)
+                created_item = create_item_with_banners(serializer.validated_data, request.user)
                 return Response({"item_id": created_item.id}, status=status.HTTP_201_CREATED)
             except (ValueError, ValidationError) as e:
                 return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
