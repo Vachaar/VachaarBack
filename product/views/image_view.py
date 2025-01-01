@@ -2,11 +2,11 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from product.Validators.upload_file_validator import validate_file_size
+from product.Validators.upload_file_validator import validate_file_size, validate_file_type
 from product.models.image import Image
 
 
@@ -14,7 +14,7 @@ class ImageUploadView(APIView):
     """
     API to upload images.
     """
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
@@ -23,9 +23,14 @@ class ImageUploadView(APIView):
 
         file = request.FILES['file']
 
-        response = validate_file_size(file, max_size_mb=10)
-        if response is not None:
-            return response
+        size_validation_response = validate_file_size(file, max_size_mb=10)
+        if size_validation_response is not None:
+            return size_validation_response
+
+        allowed_types = ['image/jpeg', 'image/png', 'image/gif']
+        type_validation_response = validate_file_type(file, allowed_types)
+        if type_validation_response:
+            return type_validation_response
 
         image = Image.objects.create(
             content_type=file.content_type,

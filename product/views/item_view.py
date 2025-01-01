@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -46,7 +47,21 @@ class ItemListAllView(APIView):
 class ItemCreateView(APIView):
     """
     View to create an item along with its banners.
+    Request:
+        - title: str
+        - seller_user: int
+        - category_id: int
+        - price: decimal
+        - description: str (optional)
+        - banners: list[int]
+
+    Response:
+        201:
+            - item_id: int
+        400:
+            - detail: str
     """
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = ItemCreationSerializer(data=request.data)
@@ -54,7 +69,7 @@ class ItemCreateView(APIView):
             try:
                 created_item = create_item_with_banners(serializer.validated_data)
                 return Response({"item_id": created_item.id}, status=status.HTTP_201_CREATED)
-            except Exception as e:
+            except (ValueError, ValidationError) as e:
                 return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
