@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "drf_spectacular",
+    'drf_spectacular_sidecar',  # required for Django collectstatic discovery
     "rest_framework",
     "corsheaders",
     "django_filters",
@@ -130,6 +132,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -192,7 +195,8 @@ LOGGING = {
 # JWT SETTINGS
 SIMPLE_JWT = {
     "ALGORITHM": "RS256",
-    "VERIFYING_KEY": env.str("JWT_VERIFYING_KEY"),
+    "SIGNING_KEY": open("private.key").read(),
+    "VERIFYING_KEY": open("public.key").read(),
     "USER_ID_FIELD": "sso_user_id",
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
@@ -201,7 +205,6 @@ if DEBUG:
         {
             "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
             "REFRESH_TOKEN_LIFETIME": timedelta(days=365),
-            "SIGNING_KEY": env.str("JWT_SIGNING_KEY"),
         }
     )
 
@@ -223,3 +226,12 @@ SPECTACULAR_SETTINGS = {
 
 ENVIRONMENT_NAME = env.str("ENVIRONMENT_NAME", default="Vachaar")
 SHOW_SWAGGER = env.bool("SHOW_SWAGGER", default=False)
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
