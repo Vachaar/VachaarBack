@@ -31,9 +31,7 @@ if settings.SHOW_SWAGGER:
         # doc
         path(
             "api/schema/",
-            staff_member_required(
-                SpectacularAPIView.as_view()
-            ),
+            staff_member_required(SpectacularAPIView.as_view()),
             name="schema",
         ),
         path(

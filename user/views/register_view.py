@@ -27,9 +27,9 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
     throttle_classes = [RegisterThrottle]
 
-    SUCCESS_MESSAGE = (
-        "User registered successfully. Email verification code sent."
-    )
+    SUCCESS_MESSAGE = {
+        "detail": "User registered successfully. Email verification code sent."
+    }
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -46,7 +46,7 @@ class RegisterView(generics.CreateAPIView):
         send_verification_email(user)
         headers = self.get_success_headers(serializer.validated_data)
         return Response(
-            {"detail": self.SUCCESS_MESSAGE},
+            data=self.SUCCESS_MESSAGE,
             status=status.HTTP_201_CREATED,
             headers=headers,
         )
@@ -85,6 +85,8 @@ class VerifyEmailView(generics.GenericAPIView):
     permission_classes = (AllowAny,)
     throttle_classes = [VerifyEmailThrottle]
 
+    VERIFY_EMAIL_SUCCESS_MSG = {"detail": "Email verified successfully."}
+
     def post(self, request, *args, **kwargs):
         email = request.data.get("email")
         verification_code = request.data.get("code")
@@ -119,11 +121,25 @@ class VerifyEmailView(generics.GenericAPIView):
         user.save()
 
         refresh = RefreshToken.for_user(user)
-        return Response(
-            data={
-                "detail": "Email verified successfully.",
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
-            },
+
+        response = Response(
+            data=cls.VERIFY_EMAIL_SUCCESS_MSG,
             status=status.HTTP_200_OK,
         )
+
+        response.set_cookie(
+            key="refresh",
+            value=str(refresh),
+            httponly=True,
+            secure=True,
+            samesite="Strict",
+        )
+        response.set_cookie(
+            key="access",
+            value=str(refresh.access_token),
+            httponly=True,
+            secure=True,
+            samesite="Strict",
+        )
+
+        return response

@@ -26,10 +26,12 @@ class UserLoginTests(TestCase):
         response = client.post(url, data)
 
         # Assert
-        print(response.data)
         self.assertEqual(response.status_code, 200)
-        self.assertIn("access", response.data)
-        self.assertIn("refresh", response.data)
+        self.assertEqual(
+            response.json()["detail"], "User logged in successfully."
+        )
+        self.assertIn("access", response.cookies)
+        self.assertIn("refresh", response.cookies)
 
     def test_invalid_login_credentials(self):
         # Arrange
