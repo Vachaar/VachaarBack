@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from product.Validators.upload_file_validator import validate_file_size
 from product.models.image import Image
 
 
@@ -22,7 +23,8 @@ class ImageUploadView(APIView):
 
         file = request.FILES['file']
 
-        # Save the image in the database
+        validate_file_size(file, max_size_mb=10)
+
         image = Image.objects.create(
             content_type=file.content_type,
             image_data=file.read(),

@@ -20,7 +20,6 @@ class Item(BaseModel):
         User,
         null=False,
         blank=False,
-        default=None,
         on_delete=models.PROTECT,
         related_query_name="seller",
         related_name="sold_items",
