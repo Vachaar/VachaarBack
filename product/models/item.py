@@ -1,5 +1,7 @@
 from typing import Optional
+
 from django.db import models
+
 from product.models.category import Category
 from reusable.models import AmountField, BaseModel
 from user.models.user import User

@@ -1,5 +1,7 @@
 from typing import Optional
+
 from django.db import models
+
 from product.models.item import Item
 from reusable.models import BaseModel
 from user.models.user import User

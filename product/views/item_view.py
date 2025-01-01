@@ -29,6 +29,7 @@ class ItemListAllView(APIView):
     """
     View to list all items with pagination.
     """
+
     def get(self, request):
         items = Item.objects.all()
 
@@ -40,6 +41,7 @@ class ItemListAllView(APIView):
         serializer = ItemWithImagesSerializer(paginated_items, many=True)
 
         return paginator.get_paginated_response(serializer.data)
+
 
 class ItemCreateView(APIView):
     """

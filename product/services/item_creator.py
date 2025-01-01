@@ -1,10 +1,10 @@
-from product.models.item import Item
-from product.models.banner import Banner
-from product.models.image import Image
-from product.models.category import Category
-from user.models.user import User
 from django.db import transaction
-from django.core.exceptions import ObjectDoesNotExist
+
+from product.models.banner import Banner
+from product.models.category import Category
+from product.models.image import Image
+from product.models.item import Item
+from user.models.user import User
 
 
 def create_item_with_banners(data):
@@ -22,7 +22,6 @@ def create_item_with_banners(data):
         ValueError: If any unexpected issue arises in banner creation.
     """
     with transaction.atomic():
-
         category = Category.objects.get(id=data["category_id"])
         seller_user = User.objects.get(id=data["seller_user_id"])
 

@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from product.models.image import Image
+
 
 class BannerDataSerializer(serializers.Serializer):
     """
