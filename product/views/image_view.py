@@ -23,7 +23,9 @@ class ImageUploadView(APIView):
 
         file = request.FILES['file']
 
-        validate_file_size(file, max_size_mb=10)
+        response = validate_file_size(file, max_size_mb=10)
+        if response is not None:
+            return response
 
         image = Image.objects.create(
             content_type=file.content_type,
