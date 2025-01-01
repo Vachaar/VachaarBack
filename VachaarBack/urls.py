@@ -21,9 +21,11 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from VachaarBack.settings import SHOW_SWAGGER
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("product/", include("product.urls"))
+    path("product/", include("product.urls")),
     path("usr/", include("user.urls")),
 ]
 
