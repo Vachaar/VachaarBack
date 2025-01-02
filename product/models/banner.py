@@ -1,5 +1,6 @@
 from django.db import models
 
+from product.models.image import Image
 from product.models.item import Item
 from reusable.models import BaseModel
 
@@ -26,10 +27,14 @@ class Banner(BaseModel):
         help_text="Determines the order in which banners are displayed. Lower values are shown first.",
     )
 
-    image_file: models.ImageField = models.ImageField(
-        upload_to="banners/",
+    image = models.OneToOneField(
+        Image,
+        null=False,
+        blank=False,
+        default=None,
+        on_delete=models.CASCADE,
         verbose_name="Banner Image",
-        help_text="The image file for the banner.",
+        help_text="The image associated with this banner.",
     )
 
     class Meta:
