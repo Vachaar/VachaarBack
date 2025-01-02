@@ -24,10 +24,10 @@ class UserRegistrationTests(TestCase):
         response = client.post(url, data)
 
         # Assert
-        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
-            response.json()["detail"], RegisterView.SUCCESS_MESSAGE
+            response.json()["detail"],
+            RegisterView.SUCCESS_MESSAGE.get("detail"),
         )
         self.assertTrue(User.objects.filter(email=data["email"]).exists())
 

@@ -87,7 +87,14 @@ class VerifyEmailViewTests(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json()["detail"], "Email verified successfully."
+        )
+        self.assertIn("access", response.cookies)
+        self.assertIn("refresh", response.cookies)
+
         user.refresh_from_db()
+
         self.assertTrue(user.is_email_verified)
 
         self.assertIsNone(user.verification_code)
