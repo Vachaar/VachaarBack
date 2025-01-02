@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -30,6 +30,7 @@ class ItemListAllView(APIView):
     """
     View to list all items with pagination.
     """
+    permission_classes = [AllowAny]
 
     def get(self, request):
         items = Item.objects.all()
@@ -78,6 +79,7 @@ class ItemDetailView(APIView):
     """
     View to retrieve a single item by ID.
     """
+    permission_classes = [AllowAny]
 
     def get(self, request, item_id):
         try:
@@ -87,3 +89,29 @@ class ItemDetailView(APIView):
 
         serializer = ItemWithImagesSerializer(item)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ItemSellerContactView(APIView):
+    """
+    View to retrieve contact information of the seller of a specific item.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request, item_id):
+        try:
+            item = Item.objects.get(id=item_id)
+        except Item.DoesNotExist:
+            return Response(
+                {"detail": "Item not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        seller = item.seller_user
+
+        seller_contact_info = {
+            "id": seller.sso_user_id,
+            "email": seller.email,
+            "phone": seller.phone
+        }
+
+        return Response(seller_contact_info, status=status.HTTP_200_OK)
