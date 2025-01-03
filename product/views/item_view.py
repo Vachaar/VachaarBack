@@ -11,21 +11,6 @@ from product.serializers.item_serializer import ItemWithImagesSerializer
 from product.services.item_creator import create_item_with_banners
 
 
-class ItemListView(APIView):
-    """
-    View to list items for the logged-in user.
-    """
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-
-        items = Item.objects.filter(seller_user=user)
-
-        serializer = ItemWithImagesSerializer(items, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class ItemListAllView(APIView):
     """
     View to list all items with pagination.
