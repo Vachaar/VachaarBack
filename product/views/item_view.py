@@ -9,6 +9,7 @@ from product.models.item import Item
 from product.serializers.item_creation_serializer import ItemCreationSerializer
 from product.serializers.item_serializer import ItemWithImagesSerializer
 from product.services.item_creator import create_item_with_banners
+from reusable.jwt import CookieJWTAuthentication
 
 
 class ItemListView(APIView):
@@ -16,6 +17,7 @@ class ItemListView(APIView):
     View to list items for the logged-in user.
     """
 
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -32,6 +34,9 @@ class ItemListAllView(APIView):
     View to list all items with pagination.
     """
 
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         items = Item.objects.all()
 
@@ -39,7 +44,6 @@ class ItemListAllView(APIView):
         paginator.page_size = 10
 
         paginated_items = paginator.paginate_queryset(items, request)
-
         serializer = ItemWithImagesSerializer(paginated_items, many=True)
 
         return paginator.get_paginated_response(serializer.data)
@@ -63,6 +67,7 @@ class ItemCreateView(APIView):
             - detail: str
     """
 
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -86,6 +91,9 @@ class ItemDetailView(APIView):
     """
     View to retrieve a single item by ID.
     """
+
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, item_id):
         try:

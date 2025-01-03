@@ -11,6 +11,7 @@ from product.Validators.upload_file_validator import (
     validate_file_type,
 )
 from product.models.image import Image
+from reusable.jwt import CookieJWTAuthentication
 
 
 class ImageUploadView(APIView):
@@ -18,6 +19,7 @@ class ImageUploadView(APIView):
     API to upload images.
     """
 
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
