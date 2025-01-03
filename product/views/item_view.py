@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -17,7 +18,7 @@ class ItemListView(APIView):
     """
 
     authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
@@ -34,7 +35,7 @@ class ItemListAllView(APIView):
     """
 
     authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         items = Item.objects.all()
@@ -67,7 +68,7 @@ class ItemCreateView(APIView):
     """
 
     authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = ItemCreationSerializer(data=request.data)
@@ -92,7 +93,7 @@ class ItemDetailView(APIView):
     """
 
     authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, item_id):
         try:
