@@ -3,6 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from user.exceptions import UserNotFoundException
 from user.models.user import User
 
 
@@ -42,7 +43,9 @@ class VerifyEmailViewTests(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json()["message"], "User not found.")
+        self.assertEqual(
+            response.json()["message"], UserNotFoundException.default_detail
+        )
 
     def test_verify_email_view_verification_code_is_not_valid(self):
         # Arrange

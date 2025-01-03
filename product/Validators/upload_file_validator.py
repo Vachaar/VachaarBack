@@ -35,8 +35,9 @@ def validate_file_type(file, allowed_types):
     """
     if file.content_type not in allowed_types:
         return Response(
-            {"detail": f"Invalid file type. Allowed types: {', '.join(allowed_types)}"},
+            {
+                "detail": f"Invalid file type. Allowed types: {', '.join(allowed_types)}"
+            },
             status=status.HTTP_400_BAD_REQUEST,
         )
     return None
-

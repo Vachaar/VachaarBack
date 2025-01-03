@@ -32,7 +32,9 @@ def create_item_with_banners(data, seller_user):
         try:
             category = Category.objects.get(id=data["category_id"])
         except Category.DoesNotExist:
-            raise Category.DoesNotExist(f"Category with id {data['category_id']} not found")
+            raise Category.DoesNotExist(
+                f"Category with id {data['category_id']} not found"
+            )
 
         item_data = create_item_data(data, category, seller_user)
         item = Item.objects.create(**item_data)

@@ -15,6 +15,7 @@ class ItemListView(APIView):
     """
     View to list items for the logged-in user.
     """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -61,16 +62,23 @@ class ItemCreateView(APIView):
         400:
             - detail: str
     """
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = ItemCreationSerializer(data=request.data)
         if serializer.is_valid():
             try:
-                created_item = create_item_with_banners(serializer.validated_data, request.user)
-                return Response({"item_id": created_item.id}, status=status.HTTP_201_CREATED)
+                created_item = create_item_with_banners(
+                    serializer.validated_data, request.user
+                )
+                return Response(
+                    {"item_id": created_item.id}, status=status.HTTP_201_CREATED
+                )
             except (ValueError, ValidationError) as e:
-                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST
+                )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -83,7 +91,9 @@ class ItemDetailView(APIView):
         try:
             item = Item.objects.get(id=item_id)
         except Item.DoesNotExist:
-            return Response({"detail": "Item not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "Item not found."}, status=status.HTTP_404_NOT_FOUND
+            )
 
         serializer = ItemWithImagesSerializer(item)
         return Response(serializer.data, status=status.HTTP_200_OK)

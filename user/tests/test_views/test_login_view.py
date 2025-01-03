@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 
+from user.exceptions import InvalidCredentialsException
 from user.models.user import User
 from user.views.login_view import CustomTokenObtainPairView
 
@@ -44,7 +45,9 @@ class UserLoginTests(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data["message"], "Invalid credentials.")
+        self.assertEqual(
+            response.data["message"], InvalidCredentialsException.default_detail
+        )
         self.assertNotIn("access", response.data)
         self.assertNotIn("refresh", response.data)
 

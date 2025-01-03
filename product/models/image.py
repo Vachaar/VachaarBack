@@ -7,6 +7,7 @@ class Image(BaseModel):
     """
     Model to store image files directly in the database.
     """
+
     content_type = models.CharField(
         max_length=50,
         verbose_name="Content Type",
