@@ -95,7 +95,7 @@ class ItemSellerContactView(APIView):
     """
     View to retrieve contact information of the seller of a specific item.
     """
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, item_id):
         try:
