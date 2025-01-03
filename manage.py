@@ -5,7 +5,8 @@ import sys
 
 
 def main():
-    #just wnat a new commit :)
+    #just want a new commit :)
+    #another new commit :))
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VachaarBack.settings")
     try:
