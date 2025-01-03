@@ -145,7 +145,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.NamespaceVersioning",
     "DEFAULT_VERSION": "v1",
-    "DEFAULT_AUTHENTICATION_CLASSES": ("reusable.jwt.CustomJWTAuthentication",),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("reusable.jwt.CookieJWTAuthentication",),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
@@ -199,7 +199,13 @@ SIMPLE_JWT = {
     "VERIFYING_KEY": open("public.key").read(),
     "USER_ID_FIELD": "sso_user_id",
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
 if DEBUG:
     SIMPLE_JWT.update(
         {
@@ -226,7 +232,6 @@ SPECTACULAR_SETTINGS = {
 
 ENVIRONMENT_NAME = env.str("ENVIRONMENT_NAME", default="Vachaar")
 SHOW_SWAGGER = env.bool("SHOW_SWAGGER", default=False)
-
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = env("EMAIL_HOST")

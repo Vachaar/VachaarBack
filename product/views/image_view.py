@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -11,6 +11,7 @@ from product.Validators.upload_file_validator import (
     validate_file_type,
 )
 from product.models.image import Image
+from reusable.jwt import CookieJWTAuthentication
 
 
 class ImageUploadView(APIView):
@@ -18,7 +19,8 @@ class ImageUploadView(APIView):
     API to upload images.
     """
 
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [CookieJWTAuthentication]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
