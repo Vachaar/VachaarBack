@@ -3,6 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from user.exceptions import EmailIsNotValidException
 from user.models.user import User
 from user.tests.factories.user_factory import UserFactory
 from user.views.register_view import RegisterView
@@ -102,4 +103,7 @@ class UserRegistrationTests(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("email", response.json())
+        self.assertEqual(
+            response.json()["error"]["detail"],
+            EmailIsNotValidException.default_detail,
+        )

@@ -13,7 +13,7 @@ class CategorySerializerTests(TestCase):
         self.invalid_category_data = {
             "title": "",
         }
-        self.category = CategoryFactory(title="Books")
+        self.category = CategoryFactory()
 
     def test_serializer_valid_data(self):
         # Arrange

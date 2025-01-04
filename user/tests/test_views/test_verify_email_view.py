@@ -5,6 +5,7 @@ from rest_framework.test import APIClient
 
 from user.exceptions import UserNotFoundException
 from user.tests.factories.user_factory import UserFactory
+from user.views.register_view import VerifyEmailView
 
 
 class VerifyEmailViewTests(TestCase):
@@ -83,7 +84,7 @@ class VerifyEmailViewTests(TestCase):
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.json()["detail"], "Email verified successfully."
+            response.json(), VerifyEmailView.VERIFY_EMAIL_SUCCESS_MSG
         )
         self.assertIn("access", response.cookies)
         self.assertIn("refresh", response.cookies)

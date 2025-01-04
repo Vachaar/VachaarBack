@@ -5,6 +5,7 @@ from rest_framework.test import APIClient
 
 from user.exceptions import UserNotFoundException, EmailAlreadyVerifiedException
 from user.tests.factories.user_factory import UserFactory
+from user.views.register_view import ResendVerificationEmailCodeView
 
 
 class TestResendVerificationEmailCode(TestCase):
@@ -22,7 +23,7 @@ class TestResendVerificationEmailCode(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response.json(),
-            {"detail": "Email verification code resent successfully."},
+            ResendVerificationEmailCodeView.EMAIL_RESENT_SUCCESS_MSG,
         )
 
     def test_resend_verification_email_code_user_not_found(self):

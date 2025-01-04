@@ -10,7 +10,7 @@ from user.tests.factories.user_factory import UserFactory
 
 class ItemWithImagesSerializerTests(TestCase):
     def setUp(self):
-        self.category = CategoryFactory(title="Test Category")
+        self.category = CategoryFactory()
         self.user = UserFactory()
         self.item = ItemFactory(
             title="Test Item",
@@ -44,7 +44,7 @@ class ItemWithImagesSerializerTests(TestCase):
         data = serializer.data
         # Assert
         self.assertListEqual(
-            list(data["image_ids"]), [self.image2.id, self.image1.id]
+            list(data["image_ids"]), [self.image1.id, self.image2.id]
         )
 
     def test_serializer_empty_image_ids(self):

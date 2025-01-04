@@ -13,7 +13,7 @@ from user.tests.factories.user_factory import UserFactory
 
 class CreateItemWithBannersTests(TestCase):
     def setUp(self):
-        self.category = CategoryFactory(title="TestCategory")
+        self.category = CategoryFactory()
         self.image = ImageFactory()
         self.seller_user = UserFactory(
             username="test_seller", password="password"
@@ -103,7 +103,7 @@ class CreateItemWithBannersTests(TestCase):
 
 class CreateBannersTests(TestCase):
     def setUp(self):
-        self.category = CategoryFactory(title="Test Category")
+        self.category = CategoryFactory()
         self.user = UserFactory()
         self.item = ItemFactory(
             title="Test Item",

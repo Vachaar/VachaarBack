@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from user.models.user import User
+from user.exceptions import EmailIsNotValidException
 from user.serializers.user_serializer import CustomTokenObtainPairSerializer
 from user.serializers.user_serializer import UserRegistrationSerializer
 from user.tests.factories.user_factory import UserFactory
@@ -70,12 +70,9 @@ class TestUserRegistrationSerializer(TestCase):
 
         serializer = UserRegistrationSerializer(data=invalid_data)
 
-        # Act
-        is_valid = serializer.is_valid()
-
-        # Assert
-        self.assertFalse(is_valid)
-        self.assertIn("email", serializer.errors)
+        # Act and Assert
+        with self.assertRaises(EmailIsNotValidException):
+            serializer.is_valid()
 
     def test_user_registration_serializer_with_blank_fields(self):
         # Arrange

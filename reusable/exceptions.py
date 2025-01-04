@@ -1,5 +1,6 @@
 from typing import Optional
 
+from rest_framework import status
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
@@ -15,7 +16,7 @@ class CustomApiValidationError(APIException):
         default_code (str): The default error code.
     """
 
-    status_code: int = 400
+    status_code: int = status.HTTP_400_BAD_REQUEST
     default_detail: str = "Invalid input"
     default_code: str = "invalid"
 

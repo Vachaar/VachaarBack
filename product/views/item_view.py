@@ -40,7 +40,7 @@ class ItemListAllView(generics.ListAPIView):
     search_fields = ["title"]
 
     filterset_fields = {
-        "category_id": ["exact"],
+        "category": ["exact"],
         "price": ["gte", "lte"],
     }
 

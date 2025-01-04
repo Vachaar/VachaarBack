@@ -16,7 +16,7 @@ class ItemListAllViewTests(TestCase):
         self.view = ItemListView.as_view()
         self.user = UserFactory()
 
-        self.category = CategoryFactory(title="Test Category")
+        self.category = CategoryFactory()
         self.item1 = ItemFactory(
             title="Test Item 1",
             seller_user=self.user,
@@ -113,7 +113,7 @@ class TestItemCreateView(TestCase):
         self.view = ItemCreateView.as_view()
         self.user = UserFactory()
 
-        self.category = CategoryFactory(title="Test Category")
+        self.category = CategoryFactory()
         self.image = ImageFactory()
 
         self.valid_payload = {

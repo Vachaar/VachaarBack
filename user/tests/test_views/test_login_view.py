@@ -26,7 +26,8 @@ class UserLoginTests(TestCase):
         # Assert
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            response.json()["detail"], "User logged in successfully."
+            response.json()["detail"],
+            CustomTokenObtainPairView.LOGIN_SUCCESS_MSG["detail"],
         )
         self.assertIn("access", response.cookies)
         self.assertIn("refresh", response.cookies)

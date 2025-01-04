@@ -8,7 +8,7 @@ from product.tests.factories.image_factory import ImageFactory
 
 class ItemCreationSerializerTests(TestCase):
     def setUp(self):
-        self.valid_category = CategoryFactory(title="Valid Category")
+        self.valid_category = CategoryFactory()
         self.valid_image = ImageFactory()
         self.valid_data = {
             "title": "Sample Item",

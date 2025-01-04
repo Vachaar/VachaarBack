@@ -1,33 +1,42 @@
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+from user.exceptions import (
+    PhoneIsNotValidException,
+    EmailIsNotValidException,
+    UserAlreadyExistsException,
+)
 from user.models.user import User
 from user.services.validators import UserValidator
 
 
-class UserRegistrationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["phone", "email", "password"]
-        extra_kwargs = {
-            "email": {
-                "validators": [],
-            },
-            "password": {"write_only": True},
-        }
+class UserRegistrationSerializer(serializers.Serializer):
+    email = serializers.CharField()
+    password = serializers.CharField(max_length=128)
+    phone = serializers.CharField()
 
     def validate_email(self, value):
+        try:
+            UserValidator.email_validator(value)
+        except ValidationError:
+            raise EmailIsNotValidException()
+
         existing_user = User.objects.filter(email=value).first()
 
         if existing_user:
             if existing_user.is_email_verified:
-                raise serializers.ValidationError(
-                    "User with this email already exists."
-                )
+                raise UserAlreadyExistsException()
             else:
                 self.instance = existing_user
 
-        UserValidator.email_validator(value)
+        return value
+
+    def validate_phone(self, value):
+        try:
+            UserValidator.phone_validator(value)
+        except ValidationError:
+            raise PhoneIsNotValidException()
         return value
 
     def create(self, validated_data):
