@@ -3,18 +3,14 @@ from django.test import TestCase
 
 from user.admin import UserAdmin
 from user.models.user import User
+from user.tests.factories.user_factory import UserFactory
 
 
 class AdminUserTestCase(TestCase):
     def setUp(self):
-        self.user = User.objects.create(
-            email="test@example.com",
-            password="testpass",
+        self.user = UserFactory(
             first_name="Test",
             last_name="User",
-            phone="09123456789",
-            is_active=True,
-            is_staff=False,
         )
 
         self.user_admin = UserAdmin(model=User, admin_site=AdminSite())

@@ -1,5 +1,9 @@
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -12,41 +16,46 @@ from product.services.item_creator import create_item_with_banners
 from reusable.jwt import CookieJWTAuthentication
 
 
-class ItemListView(APIView):
+class ItemPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
+class ItemListAllView(generics.ListAPIView):
+    """
+    View to list all items with search, filters, and ordering.
+    """
+
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = ItemWithImagesSerializer
+    pagination_class = ItemPagination
+
+    queryset = Item.objects.all()
+
+    # Add filters, search, and ordering
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
+    search_fields = ["title"]
+
+    filterset_fields = {
+        "category_id": ["exact"],
+        "price": ["gte", "lte"],
+    }
+
+    ordering_fields = ["created_at", "price"]
+    ordering = ["-created_at"]  # Default ordering (newest first)
+
+
+class ItemListView(ItemListAllView):
     """
     View to list items for the logged-in user.
     """
 
-    authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-
-        items = Item.objects.filter(seller_user=user)
-
-        serializer = ItemWithImagesSerializer(items, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class ItemListAllView(APIView):
-    """
-    View to list all items with pagination.
-    """
-
-    authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        items = Item.objects.all()
-
-        paginator = PageNumberPagination()
-        paginator.page_size = 10
-
-        paginated_items = paginator.paginate_queryset(items, request)
-        serializer = ItemWithImagesSerializer(paginated_items, many=True)
-
-        return paginator.get_paginated_response(serializer.data)
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(seller_user=self.request.user)
 
 
 class ItemCreateView(APIView):
@@ -54,11 +63,10 @@ class ItemCreateView(APIView):
     View to create an item along with its banners.
     Request:
         - title: str
-        - seller_user: int
-        - category_id: int
+        - category: int
         - price: decimal
         - description: str (optional)
-        - banners: list[int]
+        - banners: list[BannerDataSerializer]
 
     Response:
         201:
@@ -95,13 +103,11 @@ class ItemDetailView(APIView):
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, item_id):
-        try:
-            item = Item.objects.get(id=item_id)
-        except Item.DoesNotExist:
-            return Response(
-                {"detail": "Item not found."}, status=status.HTTP_404_NOT_FOUND
-            )
+    @property
+    def serializer_class(self):
+        return ItemWithImagesSerializer
 
-        serializer = ItemWithImagesSerializer(item)
+    def get(self, request, item_id):
+        item = get_object_or_404(Item, id=item_id)
+        serializer = self.serializer_class(item)
         return Response(serializer.data, status=status.HTTP_200_OK)

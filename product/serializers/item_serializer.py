@@ -12,7 +12,7 @@ class ItemWithImagesSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "title",
-            "category_id",
+            "category",
             "price",
             "description",
             "image_ids",

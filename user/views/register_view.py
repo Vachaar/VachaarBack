@@ -33,8 +33,6 @@ class RegisterView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        print(serializer.is_valid())
-        print(serializer.errors)
         if serializer.is_valid():
             if not serializer.validated_data.get("email"):
                 raise EmailIsNotValidException()

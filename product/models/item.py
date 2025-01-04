@@ -18,7 +18,7 @@ class Item(BaseModel):
         verbose_name="Item Title",
     )
 
-    seller_user = models.ForeignKey(
+    seller_user: User = models.ForeignKey(
         User,
         null=False,
         blank=False,
@@ -28,7 +28,7 @@ class Item(BaseModel):
         verbose_name="Seller",
     )
 
-    category_id = models.ForeignKey(
+    category: Category = models.ForeignKey(
         Category,
         null=False,
         blank=False,

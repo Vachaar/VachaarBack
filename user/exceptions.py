@@ -35,3 +35,9 @@ class InvalidCredentialsException(CustomApiValidationError):
     status_code: int = 400
     default_detail: str = "احراز نامعتبر"
     default_code: str = "invalid credentials."
+
+
+class EmailCanNotBeSentException(CustomApiValidationError):
+    status_code: int = 400
+    default_detail: str = "مشکل در ارسال ایمیل. لطفا دقایقی بعد تلاش کنید"
+    default_code: str = "email can not be sent."

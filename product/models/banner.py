@@ -13,7 +13,7 @@ class Banner(BaseModel):
     and includes an image file to represent the banner visually.
     """
 
-    item_id: Item = models.ForeignKey(
+    item: Item = models.ForeignKey(
         Item,
         null=False,
         blank=False,
@@ -27,7 +27,7 @@ class Banner(BaseModel):
         help_text="Determines the order in which banners are displayed. Lower values are shown first.",
     )
 
-    image = models.OneToOneField(
+    image: Image = models.OneToOneField(
         Image,
         null=False,
         blank=False,
@@ -53,6 +53,6 @@ class Banner(BaseModel):
         Returns:
             str: A string describing the banner, including its order and associated item.
         """
-        if self.item_id:
-            return f"Banner {self.order} for Item: {self.item_id.title}"
+        if self.item:
+            return f"Banner {self.order} for Item: {self.item.title}"
         return f"Banner {self.order} (No associated item)"
