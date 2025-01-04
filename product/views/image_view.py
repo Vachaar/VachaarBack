@@ -6,28 +6,37 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from product.Validators.upload_file_validator import validate_file_size, validate_file_type
+from product.Validators.upload_file_validator import (
+    validate_file_size,
+    validate_file_type,
+)
 from product.models.image import Image
+from reusable.jwt import CookieJWTAuthentication
 
 
 class ImageUploadView(APIView):
     """
     API to upload images.
     """
+
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
-        if 'file' not in request.FILES:
-            return Response({"detail": "No file provided."}, status=status.HTTP_400_BAD_REQUEST)
+        if "file" not in request.FILES:
+            return Response(
+                {"detail": "No file provided."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        file = request.FILES['file']
+        file = request.FILES["file"]
 
         size_validation_response = validate_file_size(file, max_size_mb=10)
         if size_validation_response is not None:
             return size_validation_response
 
-        allowed_types = ['image/jpeg', 'image/png', 'image/gif']
+        allowed_types = ["image/jpeg", "image/png", "image/gif"]
         type_validation_response = validate_file_type(file, allowed_types)
         if type_validation_response is not None:
             return type_validation_response
@@ -43,6 +52,7 @@ class ImageRawView(APIView):
     """
     API to serve raw image data for embedding in HTML.
     """
+
     permission_classes = [AllowAny]
 
     def get(self, request, image_id):

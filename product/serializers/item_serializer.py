@@ -9,8 +9,17 @@ class ItemWithImagesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ['id', 'title', 'category_id', 'price', 'description', 'image_ids']
+        fields = [
+            "id",
+            "title",
+            "category_id",
+            "price",
+            "description",
+            "image_ids",
+        ]
 
     def get_image_ids(self, obj):
         # Get all banners related to this item and extract their image IDs
-        return Banner.objects.filter(item_id=obj).values_list('image_id', flat=True)
+        return Banner.objects.filter(item_id=obj).values_list(
+            "image_id", flat=True
+        )

@@ -40,7 +40,9 @@ class TestResendVerificationEmailCode(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json()["message"], "User not found.")
+        self.assertEqual(
+            response.json()["message"], UserNotFoundException.default_detail
+        )
 
     def test_resend_verification_email_code_email_already_verified(self):
         # Arrange
