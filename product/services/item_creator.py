@@ -1,5 +1,9 @@
 from django.db import transaction
 
+from product.exceptions import (
+    SellerUserIsRequiredException,
+    ImageNotFoundException,
+)
 from product.models.banner import Banner
 from product.models.image import Image
 from product.models.item import Item
@@ -25,7 +29,7 @@ def create_item_with_banners(data, seller_user):
         all changes will be rolled back.
     """
     if not seller_user:
-        raise ValueError("Seller user is required")
+        raise SellerUserIsRequiredException()
 
     with transaction.atomic():
         item_data = create_item_data(data, seller_user)
@@ -39,7 +43,11 @@ def create_item_with_banners(data, seller_user):
 def create_banners(data, item):
     banners_data = data.get("banners", [])
     for banner_data in banners_data:
-        image = Image.objects.get(id=banner_data["image_id"])
+        try:
+            image = Image.objects.get(id=banner_data["image_id"])
+        except Image.DoesNotExist:
+            raise ImageNotFoundException()
+
         Banner.objects.create(
             item=item,
             order=banner_data["order"],

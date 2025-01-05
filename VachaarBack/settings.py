@@ -232,6 +232,8 @@ SPECTACULAR_SETTINGS = {
 
 ENVIRONMENT_NAME = env.str("ENVIRONMENT_NAME", default="Vachaar")
 SHOW_SWAGGER = env.bool("SHOW_SWAGGER", default=False)
+IMAGE_MAX_SIZE_MB = env("IMAGE_MAX_SIZE_MB", default=10)
+ALLOWED_IMAGE_TYPES = env("ALLOWED_IMAGE_TYPES", default="jpeg, png, gif")
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = env("EMAIL_HOST")
