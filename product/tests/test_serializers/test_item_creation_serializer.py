@@ -1,6 +1,7 @@
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError
 
+from product.exceptions import CategoryDoesNotExistException
 from product.serializers.item_creation_serializer import ItemCreationSerializer
 from product.tests.factories.category_factory import CategoryFactory
 from product.tests.factories.image_factory import ImageFactory
@@ -48,7 +49,7 @@ class ItemCreationSerializerTests(TestCase):
         invalid_data = self.valid_data.copy()
         invalid_data["category"] = 9999
         serializer = ItemCreationSerializer(data=invalid_data)
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(CategoryDoesNotExistException):
             serializer.is_valid(raise_exception=True)
 
     def test_serializer_invalid_price(self):

@@ -1,6 +1,10 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
+from product.exceptions import (
+    ImageNotFoundException,
+    SellerUserIsRequiredException,
+)
 from product.models.banner import Banner
 from product.models.item import Item
 from product.services.item_creator import create_banners
@@ -45,10 +49,9 @@ class CreateItemWithBannersTests(TestCase):
         data = self.item_data
 
         # Assert
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(SellerUserIsRequiredException) as context:
             # Act
             create_item_with_banners(data, None)
-        self.assertEqual(str(context.exception), "Seller user is required")
 
     def test_invalid_category(self):
         # Arrange
@@ -66,7 +69,7 @@ class CreateItemWithBannersTests(TestCase):
         data["banners"][0]["image_id"] = 99999
 
         # Assert
-        with self.assertRaises(ObjectDoesNotExist):
+        with self.assertRaises(ImageNotFoundException):
             # Act
             create_item_with_banners(data, self.seller_user)
 
@@ -75,11 +78,9 @@ class CreateItemWithBannersTests(TestCase):
         invalid_data = self.item_data.copy()
         invalid_data["banners"][0]["image_id"] = 99999
 
-        # Act
-        try:
+        # Act and Assert
+        with self.assertRaises(ImageNotFoundException):
             create_item_with_banners(invalid_data, self.seller_user)
-        except ObjectDoesNotExist:
-            pass
 
         # Assert
         self.assertEqual(Item.objects.count(), 0)
@@ -153,5 +154,5 @@ class CreateBannersTests(TestCase):
         data = {"banners": invalid_banner_data}
 
         # Act & Assert
-        with self.assertRaises(ObjectDoesNotExist):
+        with self.assertRaises(ImageNotFoundException):
             create_banners(data, self.item)

@@ -205,4 +205,4 @@ class ItemDetailViewTests(TestCase):
         # Act
         response = self.view(request, item_id=self.invalid_item_id)
         # Assert
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

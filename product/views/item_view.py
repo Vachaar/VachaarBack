@@ -110,7 +110,7 @@ class ItemDetailView(APIView):
 
     def get(self, request, item_id):
         try:
-            item = Item.objects.prefetch_related('banner_set').get(id=item_id)
+            item = Item.objects.prefetch_related("banner_set").get(id=item_id)
         except Item.DoesNotExist:
             raise ItemNotFoundException()
 

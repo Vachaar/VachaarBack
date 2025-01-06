@@ -32,7 +32,7 @@ class ImageUploadView(APIView):
 
         validate_file_size(
             file=file,
-            max_size_mb=settings.IMAGE_MAX_SIZE_MB,
+            max_size_mb=int(settings.IMAGE_MAX_SIZE_MB),
         )
 
         validate_file_type(

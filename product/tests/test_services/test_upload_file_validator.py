@@ -1,8 +1,7 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
-from rest_framework import status
-from rest_framework.response import Response
 
+from product.exceptions import FileSizeExceedMaxSizeException
 from product.services.upload_file_validator import validate_file_size
 
 
@@ -21,7 +20,7 @@ class ValidateFileSizeTests(TestCase):
         result = validate_file_size(file, self.max_size_mb)
 
         # Assert
-        self.assertIsNone(result)
+        self.assertEqual(file, result)
 
     def test_file_size_exceeds_limit(self):
         # Arrange
@@ -30,15 +29,9 @@ class ValidateFileSizeTests(TestCase):
             "large_file.txt", oversized_content, content_type="text/plain"
         )
 
-        # Act
-        result = validate_file_size(file, self.max_size_mb)
-
-        # Assert
-        self.assertIsInstance(result, Response)
-        self.assertEqual(result.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            result.data, {"detail": "File size exceeds the 1MB limit."}
-        )
+        # Act and Assert
+        with self.assertRaises(FileSizeExceedMaxSizeException):
+            validate_file_size(file, self.max_size_mb)
 
     def test_file_with_zero_size(self):
         # Arrange
@@ -50,7 +43,7 @@ class ValidateFileSizeTests(TestCase):
         result = validate_file_size(file, self.max_size_mb)
 
         # Assert
-        self.assertIsNone(result)
+        self.assertEqual(file, result)
 
     def test_file_size_exactly_at_limit(self):
         # Arrange
@@ -65,4 +58,4 @@ class ValidateFileSizeTests(TestCase):
         result = validate_file_size(file, self.max_size_mb)
 
         # Assert
-        self.assertIsNone(result)
+        self.assertEqual(file, result)
