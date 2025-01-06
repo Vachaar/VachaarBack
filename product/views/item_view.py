@@ -3,7 +3,6 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -18,7 +17,7 @@ from reusable.jwt import CookieJWTAuthentication
 
 
 class ItemPagination(PageNumberPagination):
-    page_size = 10
+    page_size = 24
     page_size_query_param = "page_size"
     max_page_size = 100
 
@@ -28,8 +27,6 @@ class ItemListAllView(generics.ListAPIView):
     View to list all items with search, filters, and ordering.
     """
 
-    authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
     serializer_class = ItemWithImagesSerializer
     pagination_class = ItemPagination
 
@@ -53,6 +50,9 @@ class ItemListView(ItemListAllView):
     """
     View to list items for the logged-in user.
     """
+
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -100,9 +100,6 @@ class ItemDetailView(APIView):
     """
     View to retrieve a single item by ID.
     """
-
-    authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
 
     @property
     def serializer_class(self):

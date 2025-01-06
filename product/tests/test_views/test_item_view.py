@@ -21,7 +21,7 @@ class ItemListAllViewTests(TestCase):
             title="Test Item 1",
             seller_user=self.user,
             category=self.category,
-            price=100.99,
+            price=101,
             description="Test description",
         )
         self.item2 = ItemFactory(
@@ -168,7 +168,7 @@ class ItemDetailViewTests(TestCase):
             title="Test Item",
             seller_user=self.user,
             category=self.category,
-            price=100.99,
+            price=101,
             description="Test description",
         )
         self.valid_item_id = self.item.id

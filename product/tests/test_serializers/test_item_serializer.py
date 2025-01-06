@@ -16,7 +16,7 @@ class ItemWithImagesSerializerTests(TestCase):
             title="Test Item",
             seller_user=self.user,
             category=self.category,
-            price=100.99,
+            price=100,
             description="Test description",
         )
         self.image1 = ImageFactory()
@@ -53,7 +53,7 @@ class ItemWithImagesSerializerTests(TestCase):
             title="New Test Item",
             seller_user=self.user,
             category=self.category,
-            price=150.75,
+            price=150,
             description="Another test description",
         )
         serializer = ItemWithImagesSerializer(instance=item_without_banners)

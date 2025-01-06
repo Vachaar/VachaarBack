@@ -110,7 +110,7 @@ class CreateBannersTests(TestCase):
             title="Test Item",
             seller_user=self.user,
             category=self.category,
-            price=100.99,
+            price=101,
             description="Test description",
         )
         self.image1 = ImageFactory()

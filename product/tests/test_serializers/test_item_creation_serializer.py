@@ -14,7 +14,7 @@ class ItemCreationSerializerTests(TestCase):
         self.valid_data = {
             "title": "Sample Item",
             "category": self.valid_category.id,
-            "price": 19.99,
+            "price": 20,
             "description": "Sample description",
             "banners": [{"image_id": self.valid_image.id, "order": 1}],
         }
