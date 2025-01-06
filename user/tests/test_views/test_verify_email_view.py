@@ -4,7 +4,8 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from user.exceptions import UserNotFoundException
-from user.models.user import User
+from user.tests.factories.user_factory import UserFactory
+from user.views.register_view import VerifyEmailView
 
 
 class VerifyEmailViewTests(TestCase):
@@ -51,12 +52,8 @@ class VerifyEmailViewTests(TestCase):
         # Arrange
         client = APIClient()
         email = "test@example.com"
-        password = "password"
-        phone = "09123456789"
-        user = User.objects.create(
+        user = UserFactory(
             email=email,
-            password=password,
-            phone=phone,
             verification_code="123456",
             verification_code_expires_at="2099-12-31T23:59:59Z",
         )
@@ -73,12 +70,8 @@ class VerifyEmailViewTests(TestCase):
         # Arrange
         client = APIClient()
         email = "test@example.com"
-        password = "password"
-        phone = "09123456789"
-        user = User.objects.create(
+        user = UserFactory(
             email=email,
-            password=password,
-            phone=phone,
             verification_code="123456",
             verification_code_expires_at="2099-12-31T23:59:59Z",
         )
@@ -91,7 +84,7 @@ class VerifyEmailViewTests(TestCase):
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.json()["detail"], "Email verified successfully."
+            response.json(), VerifyEmailView.VERIFY_EMAIL_SUCCESS_MSG
         )
         self.assertIn("access", response.cookies)
         self.assertIn("refresh", response.cookies)

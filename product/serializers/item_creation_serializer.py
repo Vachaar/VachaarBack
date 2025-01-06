@@ -1,5 +1,11 @@
 from rest_framework import serializers
 
+from product.exceptions import (
+    InvalidTitleException,
+    CategoryDoesNotExistException,
+    InvalidPriceException,
+    InvalidBannerException,
+)
 from product.models.category import Category
 from product.serializers.banner_data_serializer import BannerDataSerializer
 
@@ -10,17 +16,43 @@ class ItemCreationSerializer(serializers.Serializer):
     """
 
     title = serializers.CharField(max_length=255)
-    category_id = serializers.IntegerField()
+    category = serializers.IntegerField()
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
     description = serializers.CharField(allow_blank=True, required=False)
-    banners = BannerDataSerializer(many=True)
+    banners = BannerDataSerializer(many=True, required=False)
 
-    def validate_category_id(self, value):
+    def validate_title(self, value):
         """
-        Ensure the provided category_id exists in the Category model.
+        Validate the title field.
         """
-        if not Category.objects.filter(id=value).exists():
-            raise serializers.ValidationError(
-                f"Category with ID {value} does not exist."
-            )
+        if len(value.strip()) == 0:
+            raise InvalidTitleException()
+        return value
+
+    def validate_category(self, value):
+        """
+        Validate the category_id field.
+        """
+        try:
+            category = Category.objects.get(id=value)
+        except Category.DoesNotExist:
+            raise CategoryDoesNotExistException()
+        return category
+
+    def validate_price(self, value):
+        """
+        Validate the price field.
+        """
+        if value <= 0:
+            raise InvalidPriceException()
+        return value
+
+    def validate_banners(self, value):
+        """
+        Validate the banners field.
+        """
+        for banner in value:
+            banner_serializer = BannerDataSerializer(data=banner)
+            if not banner_serializer.is_valid():
+                raise InvalidBannerException()
         return value

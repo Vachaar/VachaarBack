@@ -3,7 +3,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from user.exceptions import EmailIsNotValidException
 from user.models.user import User
+from user.tests.factories.user_factory import UserFactory
 from user.views.register_view import RegisterView
 
 
@@ -51,9 +53,7 @@ class UserRegistrationTests(TestCase):
         existing_email = "testuser@example.com"
         password = "securepassword123"
         phone = "09123456789"
-        User.objects.create(
-            email=existing_email, password=password, phone=phone
-        )
+        UserFactory(email=existing_email, password=password, phone=phone)
         data = {
             "email": existing_email,
             "password": "newsecurepassword123",
@@ -64,7 +64,6 @@ class UserRegistrationTests(TestCase):
         response = client.post(url, data)
 
         # Assert
-        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_user_throttling(self):
@@ -104,4 +103,7 @@ class UserRegistrationTests(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("email", response.json())
+        self.assertEqual(
+            response.json()["error"]["detail"],
+            EmailIsNotValidException.default_detail,
+        )

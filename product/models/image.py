@@ -13,6 +13,7 @@ class Image(BaseModel):
         verbose_name="Content Type",
         help_text="The MIME type of the image file (e.g., image/jpeg).",
     )
+
     image_data = models.BinaryField(
         verbose_name="Image Data",
         help_text="The binary data of the image file.",

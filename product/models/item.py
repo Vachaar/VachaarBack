@@ -18,22 +18,22 @@ class Item(BaseModel):
         verbose_name="Item Title",
     )
 
-    seller_user = models.ForeignKey(
+    seller_user: User = models.ForeignKey(
         User,
         null=False,
         blank=False,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_query_name="seller",
         related_name="sold_items",
         verbose_name="Seller",
     )
 
-    category_id = models.ForeignKey(
+    category: Category = models.ForeignKey(
         Category,
         null=False,
         blank=False,
         default=None,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_query_name="category",
         related_name="items",
         verbose_name="Category",

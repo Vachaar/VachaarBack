@@ -27,14 +27,10 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
     throttle_classes = [RegisterThrottle]
 
-    SUCCESS_MESSAGE = {
-        "detail": "User registered successfully. Email verification code sent."
-    }
+    SUCCESS_MESSAGE = {"detail": "ثبت نام موفق. کد تائید به ایمیل شما ارسال شد"}
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        print(serializer.is_valid())
-        print(serializer.errors)
         if serializer.is_valid():
             if not serializer.validated_data.get("email"):
                 raise EmailIsNotValidException()
@@ -63,9 +59,7 @@ class ResendVerificationEmailCodeView(generics.GenericAPIView):
     permission_classes = (AllowAny,)
     throttle_classes = [ResendVerificationEmailThrottle]
 
-    EMAIL_RESENT_SUCCESS_MSG = {
-        "detail": "Email verification code resent successfully."
-    }
+    EMAIL_RESENT_SUCCESS_MSG = {"detail": "کد تائید بازارسال شد"}
 
     def post(self, request, *args, **kwargs):
         email = request.data.get("email")
@@ -87,7 +81,7 @@ class VerifyEmailView(generics.GenericAPIView):
     permission_classes = (AllowAny,)
     throttle_classes = [VerifyEmailThrottle]
 
-    VERIFY_EMAIL_SUCCESS_MSG = {"detail": "Email verified successfully."}
+    VERIFY_EMAIL_SUCCESS_MSG = {"detail": "ایمیل با موفقیت تائید شد"}
 
     def post(self, request, *args, **kwargs):
         email = request.data.get("email")

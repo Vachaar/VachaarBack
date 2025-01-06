@@ -1,10 +1,9 @@
-from django.contrib.auth.hashers import make_password
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 
 from user.exceptions import InvalidCredentialsException
-from user.models.user import User
+from user.tests.factories.user_factory import UserFactory
 from user.views.login_view import CustomTokenObtainPairView
 
 
@@ -16,11 +15,9 @@ class UserLoginTests(TestCase):
         data = {"email": "test@example.com", "password": "testpassword"}
 
         # Create a user with the same credentials
-        User.objects.create(
+        UserFactory(
             email=data["email"],
             password=data["password"],
-            phone="09123456789",
-            is_active=True,
         )
 
         # Act
@@ -29,7 +26,8 @@ class UserLoginTests(TestCase):
         # Assert
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            response.json()["detail"], "User logged in successfully."
+            response.json()["detail"],
+            CustomTokenObtainPairView.LOGIN_SUCCESS_MSG["detail"],
         )
         self.assertIn("access", response.cookies)
         self.assertIn("refresh", response.cookies)
@@ -68,11 +66,10 @@ class UserLoginTests(TestCase):
 
     def test_authentication_with_valid_user(self):
         # Arrange
-        user = User.objects.create(
-            email="valid@example.com",
-            password="testpassword",
-            phone="09123456789",
-        )
+        email = "valid@example.com"
+        password = "testpassword"
+        user = UserFactory(email=email, password=password)
+
         request = APIClient().request()
         request.data = {
             "email": "valid@example.com",

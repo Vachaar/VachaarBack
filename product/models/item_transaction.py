@@ -13,7 +13,7 @@ class Transaction(BaseModel):
     and the user who reserved it (if any).
     """
 
-    item = models.OneToOneField(
+    item: Item = models.OneToOneField(
         Item,
         on_delete=models.CASCADE,
         related_name="transaction",
