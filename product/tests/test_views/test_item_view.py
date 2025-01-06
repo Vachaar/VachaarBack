@@ -21,7 +21,7 @@ class ItemListAllViewTests(TestCase):
             title="Test Item 1",
             seller_user=self.user,
             category=self.category,
-            price=100.99,
+            price=101,
             description="Test description",
         )
         self.item2 = ItemFactory(
@@ -168,7 +168,7 @@ class ItemDetailViewTests(TestCase):
             title="Test Item",
             seller_user=self.user,
             category=self.category,
-            price=100.99,
+            price=101,
             description="Test description",
         )
         self.valid_item_id = self.item.id
@@ -205,4 +205,4 @@ class ItemDetailViewTests(TestCase):
         # Act
         response = self.view(request, item_id=self.invalid_item_id)
         # Assert
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

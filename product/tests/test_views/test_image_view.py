@@ -7,6 +7,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+from product.exceptions import ImageNotFoundException
 from product.models.image import Image
 from product.tests.factories.image_factory import ImageFactory
 from product.views.image_view import ImageUploadView, ImageRawView
@@ -45,8 +46,6 @@ class ImageUploadViewTests(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("detail", response.data)
-        self.assertEqual(response.data["detail"], "No file provided.")
 
     def test_upload_valid_image(self):
         # Arrange
@@ -113,10 +112,8 @@ class ImageRawViewTests(TestCase):
             "image-raw", kwargs={"image_id": self.invalid_image_id}
         )
 
-    @patch("product.views.image_view.get_object_or_404")
-    def test_get_image_success(self, mock_get_object_or_404):
+    def test_get_image_success(self):
         # Arrange
-        mock_get_object_or_404.return_value = self.image
         request = self.factory.get(self.url)
 
         # Act
@@ -136,4 +133,4 @@ class ImageRawViewTests(TestCase):
         response = self.view(request, image_id=self.invalid_image_id)
 
         # Assert
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)

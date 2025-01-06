@@ -17,7 +17,7 @@ class ItemCreationSerializer(serializers.Serializer):
 
     title = serializers.CharField(max_length=255)
     category = serializers.IntegerField()
-    price = serializers.DecimalField(max_digits=10, decimal_places=2)
+    price = serializers.IntegerField()
     description = serializers.CharField(allow_blank=True, required=False)
     banners = BannerDataSerializer(many=True, required=False)
 

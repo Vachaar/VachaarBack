@@ -1,6 +1,7 @@
 from typing import Optional
 
 from django.db import models
+from django.db.models import IntegerField
 
 from product.models.category import Category
 from reusable.models import AmountField, BaseModel
@@ -39,7 +40,7 @@ class Item(BaseModel):
         verbose_name="Category",
     )
 
-    price: Optional[AmountField] = AmountField(
+    price: Optional[int] = IntegerField(
         verbose_name="Price",
     )
 

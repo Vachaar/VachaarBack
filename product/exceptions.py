@@ -9,9 +9,7 @@ class NoFileProvidedException(CustomApiValidationError):
 
 
 class FileSizeExceedMaxSizeException(CustomApiValidationError):
-    default_detail: str = (
-        f" اندازه حجم فایل نباید بیشتر از{settings.IMAGE_MAX_SIZE_MB}باشد "
-    )
+    default_detail: str = f" اندازه حجم فایل نباید بیشتر از {settings.IMAGE_MAX_SIZE_MB} باشد مگابایت "
     default_code: str = "no file provided."
 
 
