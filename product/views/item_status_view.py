@@ -28,7 +28,7 @@ class MarkItemAsSoldAPIView(APIView):
 
         self.set_item_state_to_sold(item)
 
-        return Response({"message": f"آیتم با موفقیت فروخته شد."}, status=status.HTTP_200_OK)
+        return Response({"message": "آیتم با موفقیت فروخته شد."}, status=status.HTTP_200_OK)
 
     @staticmethod
     def set_item_state_to_sold(item):
