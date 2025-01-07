@@ -1,10 +1,11 @@
+from django.db.models import Max
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -13,6 +14,7 @@ from product.models.item import Item
 from product.serializers.item_creation_serializer import ItemCreationSerializer
 from product.serializers.item_serializer import ItemWithImagesSerializer
 from product.services.item_creator import create_item_with_banners
+from product.throttling import ItemThrottle
 from reusable.jwt import CookieJWTAuthentication
 
 
@@ -25,10 +27,13 @@ class ItemPagination(PageNumberPagination):
 class ItemListAllView(generics.ListAPIView):
     """
     View to list all items with search, filters, and ordering.
+    Additionally, provides the maximum price of the filtered items.
     """
 
     serializer_class = ItemWithImagesSerializer
     pagination_class = ItemPagination
+    permission_classes = [AllowAny]
+    throttle_classes = [ItemThrottle]
 
     queryset = Item.objects.all()
 
@@ -45,6 +50,27 @@ class ItemListAllView(generics.ListAPIView):
     ordering_fields = ["created_at", "price"]
     ordering = ["-created_at"]  # Default ordering (newest first)
 
+    def get(self, request, *args, **kwargs):
+        # Fetch the filtered queryset
+        filtered_queryset = self.filter_queryset(self.get_queryset())
+
+        # Calculate the maximum price
+        max_price = filtered_queryset.aggregate(max_price=Max("price"))[
+            "max_price"
+        ]
+
+        # Serialize the data
+        page = self.paginate_queryset(filtered_queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            data = serializer.data
+            return self.get_paginated_response(
+                {"items": data, "max_price": max_price}
+            )
+        else:
+            serializer = self.get_serializer(filtered_queryset, many=True)
+            return Response({"items": serializer.data, "max_price": max_price})
+
 
 class ItemListView(ItemListAllView):
     """
@@ -53,6 +79,7 @@ class ItemListView(ItemListAllView):
 
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ItemThrottle]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -78,6 +105,7 @@ class ItemCreateView(APIView):
 
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ItemThrottle]
 
     def post(self, request):
         serializer = ItemCreationSerializer(data=request.data)
@@ -100,6 +128,9 @@ class ItemDetailView(APIView):
     """
     View to retrieve a single item by ID.
     """
+
+    permission_classes = [AllowAny]
+    throttle_classes = [ItemThrottle]
 
     @property
     def serializer_class(self):

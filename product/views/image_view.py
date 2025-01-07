@@ -12,6 +12,7 @@ from product.services.upload_file_validator import (
     validate_file_size,
     validate_file_type,
 )
+from product.throttling import ImageThrottle
 from reusable.jwt import CookieJWTAuthentication
 
 
@@ -22,6 +23,7 @@ class ImageUploadView(APIView):
 
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ImageThrottle]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
@@ -56,6 +58,7 @@ class ImageRawView(APIView):
     """
 
     permission_classes = [AllowAny]
+    throttle_classes = [ImageThrottle]
 
     def get(self, request, image_id):
         try:

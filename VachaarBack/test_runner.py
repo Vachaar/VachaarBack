@@ -20,11 +20,11 @@ class TimedTextTestResult(TextTestResult):
     """
 
     def __init__(
-            self,
-            *args: Any,
-            sort_descending: bool = False,
-            show_all: bool = True,
-            **kwargs: Any,
+        self,
+        *args: Any,
+        sort_descending: bool = False,
+        show_all: bool = True,
+        **kwargs: Any,
     ) -> None:
         super(TimedTextTestResult, self).__init__(*args, **kwargs)
         self.sort_descending = sort_descending
@@ -80,11 +80,11 @@ class TimedTextTestRunner(TextTestRunner):
     resultclass = TimedTextTestResult
 
     def __init__(
-            self,
-            *args: Any,
-            sort_descending: bool = False,
-            show_all: bool = False,
-            **kwargs: Any,
+        self,
+        *args: Any,
+        sort_descending: bool = False,
+        show_all: bool = False,
+        **kwargs: Any,
     ) -> None:
         self.sort_descending = sort_descending
         self.showAll = show_all
@@ -104,11 +104,11 @@ class SimpleTimedTestRunner(DiscoverRunner):
     test_runner = TimedTextTestRunner
 
     def __init__(
-            self,
-            *args: Any,
-            sort_descending: bool = False,
-            show_all: bool = True,
-            **kwargs: Any,
+        self,
+        *args: Any,
+        sort_descending: bool = False,
+        show_all: bool = True,
+        **kwargs: Any,
     ) -> None:
         self.sort_descending = sort_descending
         self.showAll = show_all
