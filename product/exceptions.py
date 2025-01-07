@@ -51,3 +51,24 @@ class InvalidBannerException(CustomApiValidationError):
 class SellerUserIsRequiredException(CustomApiValidationError):
     default_detail: str = "برای ایجاد یک آیتم، مشخص بودن فروشنده الزامی است"
     default_code: str = "seller user is required."
+
+class BannedItemException(CustomApiValidationError):
+    default_detail: str = "این آیتم مسدود شده است"
+    default_code: str = "banned item."
+
+class InactiveItemException(CustomApiValidationError):
+    default_detail: str = "این آیتم فعال نیست"
+    default_code: str = "inactive item."
+
+class PurchaseRequestNotFoundException(CustomApiValidationError):
+    default_detail: str = "درخواست خرید با این شناسه یافت نشد"
+    default_code: str = "purchase request not found."
+
+class UnauthorizedPurchaseActionRequest(CustomApiValidationError):
+    default_detail: str = "شما دسترسی کافی برای این درخواست را ندارید"
+    default_code: str = "unauthorized request."
+
+
+class ItemWasNotReservedRequest(CustomApiValidationError):
+    default_detail: str = "آیتم باید رزرو شده باشد."
+    default_code: str = "item was not reserved."

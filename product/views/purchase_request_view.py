@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from product.exceptions import ItemNotFoundException
 from product.models.item import Item
 from product.models.purchase_request import PurchaseRequest
 from product.serializers.purchase_request_serializer import PurchaseRequestSerializer
@@ -24,14 +25,12 @@ class CreatePurchaseRequestAPIView(APIView):
         item_id = data.get("item_id")
         comment = data.get("comment", "")
 
-        validation_result = validate_purchase_request(item_id)
-        if validation_result:
-            return validation_result
+        validate_purchase_request(item_id)
 
         purchase_request = create_or_update_purchase_request(item_id=item_id, buyer=user, comment=comment)
 
         return Response(
-            {"message": "Purchase request created successfully.", "request_id": purchase_request.id},
+            {"request_id": purchase_request.id},
             status=status.HTTP_201_CREATED,
         )
 
@@ -44,14 +43,9 @@ class AcceptPurchaseRequestAPIView(APIView):
         Accepts a purchase request and reserves the item.
         """
         user = request.user
-
-        validation_error = validate_accept_purchase_request(user, purchase_request_id)
-        if validation_error:
-            return validation_error
-
+        validate_accept_purchase_request(user, purchase_request_id)
         accept_purchase_request(purchase_request_id)
-
-        return Response({"message": "Purchase request accepted and item reserved."}, status=status.HTTP_200_OK)
+        return Response({"message": "درخواست خرید با موفقیت ثبت شد."}, status=status.HTTP_200_OK)
 
 
 class GetPurchaseRequestsForItemView(APIView):
@@ -66,14 +60,9 @@ class GetPurchaseRequestsForItemView(APIView):
         try:
             item = Item.objects.get(id=item_id, seller_user=user)
         except Item.DoesNotExist:
-            return Response(
-                {"error": "Item not found or you are not the seller."},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            raise ItemNotFoundException()
 
-        item_banned_error = check_item_banned(item)
-        if item_banned_error:
-            return item_banned_error
+        check_item_banned(item)
 
         purchase_requests = PurchaseRequest.objects.filter(item=item)
         serializer = PurchaseRequestSerializer(purchase_requests, many=True)

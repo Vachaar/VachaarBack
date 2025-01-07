@@ -1,9 +1,12 @@
+from django.db import transaction
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from product.exceptions import ItemNotFoundException
 from product.models.item import Item
+from product.models.purchase_request import PurchaseRequest
 from product.validators.item_change_state_validator import validate_sell_item_request, validate_reactivate_item_request
 
 
@@ -19,14 +22,13 @@ class MarkItemAsSoldAPIView(APIView):
         try:
             item = Item.objects.get(id=item_id)
         except Item.DoesNotExist:
-            return Response({"error": "Item not found."}, status=status.HTTP_404_NOT_FOUND)
+            raise ItemNotFoundException()
 
         validate_sell_item_request(user, item)
 
         self.set_item_state_to_sold(item)
 
-        return Response({"message": f"Item sold to {item.buyer_user.username}."}, status=status.HTTP_200_OK)
-
+        return Response({"message": f"آیتم با موفقیت فروخته شد."}, status=status.HTTP_200_OK)
 
     @staticmethod
     def set_item_state_to_sold(item):
@@ -46,17 +48,18 @@ class ReactivateItemAPIView(APIView):
         try:
             item = Item.objects.get(id=item_id)
         except Item.DoesNotExist:
-            return Response({"error": "Item not found."}, status=status.HTTP_404_NOT_FOUND)
+            raise ItemNotFoundException()
 
-        validation_error = validate_reactivate_item_request(user, item)
-        if validation_error:
-            return validation_error
+        validate_reactivate_item_request(user, item)
 
         self.reactivate_item(item)
 
-        return Response({"message": "Item reactivated."}, status=status.HTTP_200_OK)
+        return Response({"message": "آیتم فعال شد."}, status=status.HTTP_200_OK)
 
     @staticmethod
     def reactivate_item(item):
-        item.state = Item.State.ACTIVE
-        item.save()
+        with transaction.atomic():
+            item.state = Item.State.ACTIVE
+            item.save()
+            purchase_requests = PurchaseRequest.objects.filter(item=item, state=PurchaseRequest.State.ACCEPTED)
+            purchase_requests.update(state=PurchaseRequest.State.PENDING)

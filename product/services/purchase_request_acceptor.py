@@ -12,5 +12,5 @@ def accept_purchase_request(purchase_request_id):
 
         item = purchase_request.item
         item.state = Item.State.RESERVED
-        item.buyer_user = PurchaseRequest.buyer_user
+        item.buyer_user = purchase_request.buyer_user
         item.save()

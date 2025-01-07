@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('product', '0007_add_state_and_is_banned_to_item'),
+        ('product', '0010_add_state_and_is_banned_to_item'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
