@@ -192,7 +192,7 @@ LOGGING = {
 # JWT SETTINGS
 SIMPLE_JWT = {
     "ALGORITHM": "RS256",
-    "SIGNING_KEY": open("private.key").read(),
+    "SIGNING_KEY": env("PRIVATE_KEY"),
     "VERIFYING_KEY": open("public.key").read(),
     "USER_ID_FIELD": "sso_user_id",
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
