@@ -1,36 +1,49 @@
+from django.conf import settings
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from product.Validators.upload_file_validator import validate_file_size, validate_file_type
+from product.exceptions import NoFileProvidedException, ImageNotFoundException
 from product.models.image import Image
+from product.services.upload_file_validator import (
+    validate_file_size,
+    validate_file_type,
+)
+from product.throttling import ImageThrottle
+from reusable.jwt import CookieJWTAuthentication
 
 
 class ImageUploadView(APIView):
     """
     API to upload images.
     """
+
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ImageThrottle]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
-        if 'file' not in request.FILES:
-            return Response({"detail": "No file provided."}, status=status.HTTP_400_BAD_REQUEST)
+        if "file" not in request.FILES:
+            raise NoFileProvidedException()
 
-        file = request.FILES['file']
+        file = request.FILES["file"]
 
-        size_validation_response = validate_file_size(file, max_size_mb=10)
-        if size_validation_response is not None:
-            return size_validation_response
+        validate_file_size(
+            file=file,
+            max_size_mb=int(settings.IMAGE_MAX_SIZE_MB),
+        )
 
-        allowed_types = ['image/jpeg', 'image/png', 'image/gif']
-        type_validation_response = validate_file_type(file, allowed_types)
-        if type_validation_response is not None:
-            return type_validation_response
+        validate_file_type(
+            file=file,
+            allowed_types=[
+                f"image/{file_type.strip()}"
+                for file_type in settings.ALLOWED_IMAGE_TYPES.split(", ")
+            ],
+        )
 
         image = Image.objects.create(
             content_type=file.content_type,
@@ -43,8 +56,13 @@ class ImageRawView(APIView):
     """
     API to serve raw image data for embedding in HTML.
     """
+
     permission_classes = [AllowAny]
+    throttle_classes = [ImageThrottle]
 
     def get(self, request, image_id):
-        image = get_object_or_404(Image, id=image_id)
+        try:
+            image = Image.objects.get(id=image_id)
+        except Image.DoesNotExist:
+            raise ImageNotFoundException()
         return HttpResponse(image.image_data, content_type=image.content_type)

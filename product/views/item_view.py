@@ -1,32 +1,89 @@
+from django.db.models import Max
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from product.exceptions import ItemNotFoundException
 from product.models.item import Item
 from product.serializers.item_creation_serializer import ItemCreationSerializer
 from product.serializers.item_serializer import ItemWithImagesSerializer
 from product.services.item_creator import create_item_with_banners
+from product.throttling import ItemThrottle
+from reusable.jwt import CookieJWTAuthentication
 
 
-class ItemListAllView(APIView):
+class ItemPagination(PageNumberPagination):
+    page_size = 24
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
+class ItemListAllView(generics.ListAPIView):
     """
-    View to list all items with pagination.
+    View to list all items with search, filters, and ordering.
+    Additionally, provides the maximum price of the filtered items.
     """
 
-    def get(self, request):
-        items = Item.objects.all()
+    serializer_class = ItemWithImagesSerializer
+    pagination_class = ItemPagination
+    permission_classes = [AllowAny]
+    throttle_classes = [ItemThrottle]
 
-        paginator = PageNumberPagination()
-        paginator.page_size = 10
+    queryset = Item.objects.all()
 
-        paginated_items = paginator.paginate_queryset(items, request)
+    # Add filters, search, and ordering
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
 
-        serializer = ItemWithImagesSerializer(paginated_items, many=True)
+    search_fields = ["title"]
 
-        return paginator.get_paginated_response(serializer.data)
+    filterset_fields = {
+        "category": ["exact"],
+        "price": ["gte", "lte"],
+    }
+
+    ordering_fields = ["created_at", "price"]
+    ordering = ["-created_at"]  # Default ordering (newest first)
+
+    def get(self, request, *args, **kwargs):
+        # Fetch the filtered queryset
+        filtered_queryset = self.filter_queryset(self.get_queryset())
+
+        # Calculate the maximum price
+        max_price = filtered_queryset.aggregate(max_price=Max("price"))[
+            "max_price"
+        ]
+
+        # Serialize the data
+        page = self.paginate_queryset(filtered_queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            data = serializer.data
+            return self.get_paginated_response(
+                {"items": data, "max_price": max_price}
+            )
+        else:
+            serializer = self.get_serializer(filtered_queryset, many=True)
+            return Response({"items": serializer.data, "max_price": max_price})
+
+
+class ItemListView(ItemListAllView):
+    """
+    View to list items for the logged-in user.
+    """
+
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [ItemThrottle]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(seller_user=self.request.user)
 
 
 class ItemCreateView(APIView):
@@ -34,11 +91,10 @@ class ItemCreateView(APIView):
     View to create an item along with its banners.
     Request:
         - title: str
-        - seller_user: int
-        - category_id: int
+        - category: int
         - price: decimal
         - description: str (optional)
-        - banners: list[int]
+        - banners: list[BannerDataSerializer]
 
     Response:
         201:
@@ -46,16 +102,25 @@ class ItemCreateView(APIView):
         400:
             - detail: str
     """
+
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ItemThrottle]
 
     def post(self, request):
         serializer = ItemCreationSerializer(data=request.data)
         if serializer.is_valid():
             try:
-                created_item = create_item_with_banners(serializer.validated_data, request.user)
-                return Response({"item_id": created_item.id}, status=status.HTTP_201_CREATED)
+                created_item = create_item_with_banners(
+                    serializer.validated_data, request.user
+                )
+                return Response(
+                    {"item_id": created_item.id}, status=status.HTTP_201_CREATED
+                )
             except (ValueError, ValidationError) as e:
-                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST
+                )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -64,11 +129,18 @@ class ItemDetailView(APIView):
     View to retrieve a single item by ID.
     """
 
+    permission_classes = [AllowAny]
+    throttle_classes = [ItemThrottle]
+
+    @property
+    def serializer_class(self):
+        return ItemWithImagesSerializer
+
     def get(self, request, item_id):
         try:
-            item = Item.objects.get(id=item_id)
+            item = Item.objects.prefetch_related("banner_set").get(id=item_id)
         except Item.DoesNotExist:
-            return Response({"detail": "Item not found."}, status=status.HTTP_404_NOT_FOUND)
+            raise ItemNotFoundException()
 
-        serializer = ItemWithImagesSerializer(item)
+        serializer = self.serializer_class(item)
         return Response(serializer.data, status=status.HTTP_200_OK)

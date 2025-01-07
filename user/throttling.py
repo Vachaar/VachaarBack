@@ -11,9 +11,7 @@ class RegisterThrottle(BaseCustomThrottle):
 
 class VerifyEmailThrottle(BaseCustomThrottle):
     scope = "verify_email"
-    num_requests = 10
 
 
 class ResendVerificationEmailThrottle(BaseCustomThrottle):
     scope = "resend_verification_email"
-    num_requests = 10

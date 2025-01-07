@@ -2,15 +2,14 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from user.models.user import User
+from user.tests.factories.user_factory import UserFactory
 
 
 class UserTestCase(TestCase):
     def test_get_user_by_email_existing_user(self):
         # Arrange
         email = "test@example.com"
-        password = "testpassword"
-        phone = "09123456789"
-        user = User.objects.create(email=email, password=password, phone=phone)
+        user = UserFactory(email=email)
 
         # Act
         result = User.get_user_by_email(email)
@@ -33,13 +32,9 @@ class UserTestCase(TestCase):
     def test_get_user_by_email_invalid_email(self):
         # Arrange
         invalid_email = "invalid_email"
-        password = "testpassword"
-        phone = "09123456789"
 
         with self.assertRaises(ValidationError):
-            User.objects.create(
-                email=invalid_email, password=password, phone=phone
-            )
+            UserFactory(email=invalid_email)
 
         # Act
         result = User.get_user_by_email(invalid_email)
