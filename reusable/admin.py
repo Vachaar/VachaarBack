@@ -10,7 +10,7 @@ class BaseAdmin(admin.ModelAdmin):
     A base admin class that adds default readonly fields for all models.
     """
 
-    base_readonly_fields: Tuple[str, str] = ("created_at", "updated_at")
+    base_readonly_fields: Tuple[str, str, str] = ("id", "created_at", "updated_at")
 
     def get_readonly_fields(
         self, request: HttpRequest, obj: Optional[Any] = None
