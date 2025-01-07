@@ -30,10 +30,7 @@ CREDENTIALS_SECRET_KEY = env.str("CREDENTIALS_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-]
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1","localhost"])
 
 # Application definition
 
@@ -195,8 +192,8 @@ LOGGING = {
 # JWT SETTINGS
 SIMPLE_JWT = {
     "ALGORITHM": "RS256",
-    "SIGNING_KEY": open("private.key").read(),
-    "VERIFYING_KEY": open("public.key").read(),
+    "SIGNING_KEY": env("PRIVATE_KEY"),
+    "VERIFYING_KEY": env("PUBLIC_KEY"),
     "USER_ID_FIELD": "sso_user_id",
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
