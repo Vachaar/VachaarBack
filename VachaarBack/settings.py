@@ -193,7 +193,7 @@ LOGGING = {
 SIMPLE_JWT = {
     "ALGORITHM": "RS256",
     "SIGNING_KEY": env("PRIVATE_KEY"),
-    "VERIFYING_KEY": open("public.key").read(),
+    "VERIFYING_KEY": env("PUBLIC_KEY"),
     "USER_ID_FIELD": "sso_user_id",
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
