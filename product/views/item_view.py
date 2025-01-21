@@ -152,6 +152,7 @@ class ItemSellerContactView(APIView):
     """
     permission_classes = [IsAuthenticated]
     authentication_classes = [CookieJWTAuthentication]
+    throttle_classes = [ItemThrottle]
 
     def get(self, request, item_id):
         try:
