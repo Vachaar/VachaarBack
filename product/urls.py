@@ -7,6 +7,7 @@ from product.views.item_view import (
     ItemCreateView,
     ItemListAllView,
     ItemDetailView,
+    ItemSellerContactView,
 )
 
 urlpatterns = [

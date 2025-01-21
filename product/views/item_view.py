@@ -148,20 +148,17 @@ class ItemSellerContactView(APIView):
     View to retrieve contact information of the seller of a specific item.
     """
     permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
 
     def get(self, request, item_id):
         try:
             item = Item.objects.get(id=item_id)
         except Item.DoesNotExist:
-            return Response(
-                {"detail": "Item not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            raise ItemNotFoundException()
 
         seller = item.seller_user
 
         seller_contact_info = {
-            "id": seller.sso_user_id,
             "email": seller.email,
             "phone": seller.phone
         }
