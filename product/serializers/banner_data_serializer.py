@@ -16,7 +16,9 @@ class BannerDataSerializer(serializers.Serializer):
         Ensure the provided image_id exists in the Image model.
         """
         if not Image.objects.filter(id=value).exists():
-            raise serializers.ValidationError(f"Image with ID {value} does not exist.")
+            raise serializers.ValidationError(
+                f"Image with ID {value} does not exist."
+            )
         return value
 
     def validate_order(self, value):
@@ -24,5 +26,7 @@ class BannerDataSerializer(serializers.Serializer):
         Validate the order value to ensure it is positive.
         """
         if value <= 0:
-            raise serializers.ValidationError("Order must be a positive integer.")
+            raise serializers.ValidationError(
+                "Order must be a positive integer."
+            )
         return value

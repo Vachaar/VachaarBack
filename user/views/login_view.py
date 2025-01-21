@@ -12,7 +12,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     throttle_classes = [LoginThrottle]
 
-    LOGIN_SUCCESS_MSG = {"detail": "User logged in successfully."}
+    LOGIN_SUCCESS_MSG = {"detail": "ورود موفق"}
 
     def post(self, request, *args, **kwargs):
         user = self._authenticate_user(request)

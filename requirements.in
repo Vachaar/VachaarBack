@@ -11,3 +11,6 @@ factory-boy
 psycopg2-binary
 Pillow
 cryptography
+tblib
+ipython
+termcolor

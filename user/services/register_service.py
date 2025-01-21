@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils import timezone
 
+from user.exceptions import EmailCanNotBeSentException
 from user.models.user import User
 
 
@@ -44,5 +45,5 @@ def send_verification_email(user: User):
             recipient_email=user.email,
         )
         email.send()
-    except Exception as e:
-        print(f"Failed to send verification email to {user.email}. Error: {e}")
+    except Exception:
+        raise EmailCanNotBeSentException()

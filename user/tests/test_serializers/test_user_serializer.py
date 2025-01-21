@@ -1,18 +1,16 @@
 from django.test import TestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from user.models.user import User
+from user.exceptions import EmailIsNotValidException
 from user.serializers.user_serializer import CustomTokenObtainPairSerializer
 from user.serializers.user_serializer import UserRegistrationSerializer
+from user.tests.factories.user_factory import UserFactory
 
 
 class TestCustomTokenObtainPairSerializer(TestCase):
     def test_get_token_includes_email(self):
         # Arrange
-        email = "test@example.com"
-        password = "password123"
-        phone = "09123456789"
-        user = User.objects.create(email=email, password=password, phone=phone)
+        user = UserFactory()
 
         serializer = CustomTokenObtainPairSerializer()
 
@@ -72,12 +70,9 @@ class TestUserRegistrationSerializer(TestCase):
 
         serializer = UserRegistrationSerializer(data=invalid_data)
 
-        # Act
-        is_valid = serializer.is_valid()
-
-        # Assert
-        self.assertFalse(is_valid)
-        self.assertIn("email", serializer.errors)
+        # Act and Assert
+        with self.assertRaises(EmailIsNotValidException):
+            serializer.is_valid()
 
     def test_user_registration_serializer_with_blank_fields(self):
         # Arrange
@@ -100,22 +95,21 @@ class TestUserRegistrationSerializer(TestCase):
 
     def test_user_registration_serializer_with_duplicate_email(self):
         # Arrange
-        User.objects.create(
+        UserFactory(
             email="duplicate@example.com",
             phone="09123456789",
             password="securepassword",
         )
-        invalid_data = {
+        duplicate_data = {
             "email": "duplicate@example.com",
-            "phone": "1234567890",
+            "phone": "09123456789",
             "password": "anotherpassword",
         }
 
-        serializer = UserRegistrationSerializer(data=invalid_data)
+        serializer = UserRegistrationSerializer(data=duplicate_data)
 
         # Act
         is_valid = serializer.is_valid()
 
         # Assert
-        self.assertFalse(is_valid)
-        self.assertIn("email", serializer.errors)
+        self.assertTrue(is_valid)

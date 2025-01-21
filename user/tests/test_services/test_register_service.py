@@ -6,21 +6,19 @@ from django.core.mail import EmailMessage
 from django.test import TestCase
 from django.utils import timezone
 
-from user.models.user import User
+from user.exceptions import EmailCanNotBeSentException
 from user.services.register_service import send_verification_email
 from user.services.register_service import (
     set_verification_code,
     prepare_email_message,
 )
+from user.tests.factories.user_factory import UserFactory
 
 
 class TestRegisterService(TestCase):
     def test_set_verification_code_sets_code_and_expiry(self):
         # Arrange
-        email = "test@example.com"
-        password = "testpassword"
-        phone = "09123456789"
-        user = User.objects.create(email=email, password=password, phone=phone)
+        user = UserFactory()
 
         # Act
         code = set_verification_code(user)
@@ -35,10 +33,7 @@ class TestRegisterService(TestCase):
 
     def test_set_verification_code_resets_previous_code_and_expiry(self):
         # Arrange
-        user = User.objects.create(
-            email="test2@example.com",
-            password="testpassword",
-            phone="09123456789",
+        user = UserFactory(
             verification_code="123456",
             verification_code_expires_at=timezone.now() + timedelta(minutes=5),
         )
@@ -75,10 +70,7 @@ class TestRegisterService(TestCase):
         self.assertIn(recipient_email, email_message.to)
 
     def test_send_verification_email_success(self):
-        email = "test@example.com"
-        password = "testpassword"
-        phone = "09123456789"
-        user = User.objects.create(email=email, password=password, phone=phone)
+        user = UserFactory()
         mock_email_message = MagicMock(spec=EmailMessage)
 
         with patch(
@@ -94,16 +86,15 @@ class TestRegisterService(TestCase):
 
     def test_send_verification_email_raises_exception(self):
         # Arrange
-        email = "test@example.com"
-        password = "testpassword"
-        phone = "09123456789"
-        user = User.objects.create(email=email, password=password, phone=phone)
+        user = UserFactory()
 
         with patch(
             "user.services.register_service.prepare_email_message",
             side_effect=Exception,
         ) as prepare_email_mock:
             # Act and Assert
-            send_verification_email(user)
+            self.assertRaises(
+                EmailCanNotBeSentException, send_verification_email, user
+            )
 
             prepare_email_mock.assert_called_once()
