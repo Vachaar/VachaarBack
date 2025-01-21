@@ -144,3 +144,27 @@ class ItemDetailView(APIView):
 
         serializer = self.serializer_class(item)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ItemSellerContactView(APIView):
+    """
+    View to retrieve contact information of the seller of a specific item.
+    """
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
+    throttle_classes = [ItemThrottle]
+
+    def get(self, request, item_id):
+        try:
+            item = Item.objects.get(id=item_id)
+        except Item.DoesNotExist:
+            raise ItemNotFoundException()
+
+        seller = item.seller_user
+
+        seller_contact_info = {
+            "email": seller.email,
+            "phone": seller.phone
+        }
+
+        return Response(seller_contact_info, status=status.HTTP_200_OK)
