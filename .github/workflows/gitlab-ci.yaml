@@ -1,20 +1,4 @@
-image: docker:git
-
-stages:
-  - static-analysis
-  - check-requirements
-  - build
-  - test
-
-variables:
-  DOCKER_TLS_CERTDIR: ""
-  VERSION_PYTHON: python:3.12
-  VERSION_POSTGRESQL: postgres:15
-  DOCKER_AUTH_CONFIG: $CI_DOCKER_AUTH_CONFIG
-  TEST_IMAGE_TAG: "test-image-$CI_PIPELINE_ID"
-
-before_script:
-  - date
+name: Django CI
 
 on:
   push:
@@ -26,81 +10,46 @@ on:
       - main
       - develop
 
-black:
-  stage: static-analysis
-  image: $VERSION_PYTHON
-  before_script:
-    - pip install black darker
-  script:
-    - git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
-    - darker . --revision origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME --check --diff
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+jobs:
+  test:
+    runs-on: ubuntu-latest
 
-check-requirements:
-  stage: check-requirements
-  image: $VERSION_PYTHON
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes:
-        - requirements.in
-        - requirements.txt
-      when: manual
-      allow_failure: true
-  services:
-    - docker:dind
-  script:
-    - pip install pip-tools
-    - pip-compile --output-file requirements.tmp.txt requirements.in
-    - cat requirements.tmp.txt
-    - echo "take Diff:"
-    - diff --ignore-matching-lines=pip-compile --ignore-all-space requirements.txt requirements.tmp.txt
-  allow_failure: true
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
-test_build_image:
-  stage: build
-  services:
-    - docker:dind
-  variables:
-    DOCKER_BUILDKIT: "1"
-  before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - export IMAGE_TAG="$CI_REGISTRY_IMAGE:$TEST_IMAGE_TAG"
-  script:
-    - |
-      docker build \
-        --cache-from $CI_REGISTRY_IMAGE:latest \
-        --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-        --build-arg VCS_REF=$CI_COMMIT_SHA \
-        --build-arg VERSION=$CI_COMMIT_REF_NAME \
-        -t $IMAGE_TAG .
-    - docker push $IMAGE_TAG
-    - docker tag $IMAGE_TAG $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-  rules:
-    - if: $CI_COMMIT_BRANCH != "main"
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
 
-test:
-  stage: test
-  image: $CI_REGISTRY_IMAGE:$TEST_IMAGE_TAG
-  services:
-    - name: $VERSION_POSTGRESQL
-      alias: vachaar_db
-  variables:
-      POSTGRES_DB: vachaar
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_HOST_AUTH_METHOD: trust
-  before_script:
-    - set -o allexport
-    - source .env.example
-    - set +o allexport
-    - cd VachaarBack
-  script:
-    - python3 manage.py check
-    - python3 manage.py test --parallel --noinput
-  dependencies:
-    - test_build_image
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run migrations
+        run: |
+          python manage.py migrate
+
+      - name: Run tests
+        run: |
+          python manage.py test
