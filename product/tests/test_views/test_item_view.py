@@ -3,10 +3,12 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+from product.models.banner import Banner
+from product.tests.factories.banner_factory import BannerFactory
 from product.tests.factories.category_factory import CategoryFactory
 from product.tests.factories.image_factory import ImageFactory
 from product.tests.factories.item_factory import ItemFactory
-from product.views.item_view import ItemListView, ItemCreateView, ItemDetailView
+from product.views.item_view import ItemListView, ItemCreateView, ItemDetailView, ItemEditView
 from user.tests.factories.user_factory import UserFactory
 
 
@@ -154,6 +156,79 @@ class TestItemCreateView(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class ItemEditViewTests(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.view = ItemEditView.as_view()
+        self.seller_user = UserFactory()
+        self.another_user = UserFactory()
+        self.category1 = CategoryFactory()
+        self.category2 = CategoryFactory()
+        self.item = ItemFactory(
+            title="Test Item 1",
+            seller_user=self.seller_user,
+            category=self.category1,
+            price=101,
+            description="Test description"
+        )
+        self.image1 = ImageFactory()
+        self.banner1 = BannerFactory(item=self.item, image=self.image1, order=1)
+
+        self.valid_item_id = self.item.id
+        self.invalid_item_id = 99999
+
+        self.image2 = ImageFactory()
+        self.edit_payload = {
+            "title": "Test Item 2",
+            "category": self.category1.id,
+            "price": 50.00,
+            "description": "Test Description",
+            "banners": [{"image_id": self.image2.id, "order": 1}],
+        }
+        url = reverse("edit-item", kwargs={"item_id": self.valid_item_id})
+        self.edit_valid_item_request = self.factory.put(url, data=self.edit_payload, format="json")
+
+    def test_edit_valid_item(self):
+        # Arrange
+        force_authenticate(self.edit_valid_item_request, user=self.seller_user)
+
+        # Act
+        response = self.view(self.edit_valid_item_request, self.valid_item_id)
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.item.refresh_from_db()
+        self.assertEqual(self.item.title, "Test Item 2")
+        banners = Banner.objects.all()
+        self.assertEqual(len(banners), 1)
+        banner = banners[0]
+        self.assertEqual(banner.image.id, self.image2.id)
+
+    def test_edit_item_unauthenticated(self):
+        # Arrange
+        force_authenticate(self.edit_valid_item_request, user=self.another_user)
+
+        # Act
+        response = self.view(self.edit_valid_item_request, self.valid_item_id)
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], "unauthorized request.")
+
+    def test_edit_invalid_item(self):
+        # Arrange
+        url = reverse("edit-item", kwargs={"item_id": self.invalid_item_id})
+        request = self.factory.put(url, data=self.edit_payload, format="json")
+        force_authenticate(request, user=self.seller_user)
+
+        # Act
+        response = self.view(request, self.invalid_item_id)
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], "item not found.")
 
 
 class ItemDetailViewTests(TestCase):

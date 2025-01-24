@@ -9,6 +9,40 @@ from product.models.image import Image
 from product.models.item import Item
 
 
+def edit_item_with_banners(data, seller_user):
+    """
+      Service to edit an existing item along with its banners.
+
+      Args:
+          data (dict): Validated data containing item details and banner information.
+          seller_user: The authenticated user editing the item.
+
+      Returns:
+          Item: The updated item.
+
+      Raises:
+          SellerUserIsRequiredException: If the `seller_user` is not provided.
+          ValueError: If any unexpected issue arises in banner removal or creation.
+
+      Note:
+          Uses database transaction to ensure atomicity. If any operation fails,
+          all changes will be rolled back. This includes removing existing banners
+          before adding new ones.
+      """
+    if not seller_user:
+        raise SellerUserIsRequiredException()
+
+    with transaction.atomic():
+        item_data = create_item_data(data, seller_user)
+        item_id = Item.objects.update(**item_data)
+        item = Item.objects.get(id=item_id)
+
+        remove_banners(item)
+        create_banners(data, item)
+
+        return item
+
+
 def create_item_with_banners(data, seller_user):
     """
     Service to create an item along with its banners.
@@ -38,6 +72,12 @@ def create_item_with_banners(data, seller_user):
         create_banners(data, item)
 
         return item
+
+
+def remove_banners(item):
+    banners = Banner.objects.filter(item=item)
+    if banners.exists():
+        banners.delete()
 
 
 def create_banners(data, item):
