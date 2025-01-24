@@ -50,7 +50,7 @@ class PurchaseRequest(BaseModel):
     def clean(self):
         if not self.pk:
             return
-        old_instance = Item.objects.get(pk=self.pk)
+        old_instance = PurchaseRequest.objects.get(pk=self.pk)
 
         if old_instance.state == Item.State.SOLD:
             raise ValidationError("Cannot change state of sold items.")
