@@ -16,6 +16,7 @@ from product.serializers.item_serializer import ItemWithImagesSerializer
 from product.services.item_creator import create_item_with_banners, edit_item_with_banners
 from product.throttling import ItemThrottle
 from reusable.jwt import CookieJWTAuthentication
+from user.services.permission import IsNotBannedUser
 
 
 class ItemPagination(PageNumberPagination):
@@ -104,7 +105,7 @@ class ItemCreateView(APIView):
     """
 
     authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotBannedUser]
     throttle_classes = [ItemThrottle]
 
     def post(self, request):

@@ -1,7 +1,6 @@
 from django.contrib import admin
 
 from reusable.admin import BaseAdmin
-from .models.offender import OffenderUser
 from .models.user import User
 
 
@@ -24,8 +23,3 @@ class UserAdmin(BaseAdmin):
         "email",
         "phone",
     )
-
-
-@admin.register(OffenderUser)
-class OffenderUserAdmin(BaseAdmin):
-    pass

@@ -39,8 +39,3 @@ class VerificationCodeIsNotValidException(CustomApiValidationError):
 class InvalidCredentialsException(CustomApiValidationError):
     default_detail: str = "احراز نامعتبر"
     default_code: str = "invalid credentials."
-
-
-class EmailCanNotBeSentException(CustomApiValidationError):
-    default_detail: str = "مشکل در ارسال ایمیل. لطفا دقایقی بعد تلاش کنید"
-    default_code: str = "email can not be sent."

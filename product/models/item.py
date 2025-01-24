@@ -4,8 +4,15 @@ from django.db import models
 from django.db.models import IntegerField
 
 from product.models.category import Category
-from reusable.models import AmountField, BaseModel
+from reusable.models import BaseModel
 from user.models.user import User
+
+
+class ItemState(models.TextChoices):
+    ACTIVE = "active", "Active"
+    INACTIVE = "inactive", "Inactive"
+    SOLD = "sold", "Sold"
+    RESERVED = "reserved", "Reserved"
 
 
 class Item(BaseModel):
@@ -64,16 +71,10 @@ class Item(BaseModel):
         verbose_name="Buyer user",
     )
 
-    class State(models.TextChoices):
-        ACTIVE = "active", "Active"
-        INACTIVE = "inactive", "Inactive"
-        SOLD = "sold", "Sold"
-        RESERVED = "reserved", "Reserved"
-
     state = models.CharField(
         max_length=20,
-        choices=State.choices, # type: ignore
-        default=State.ACTIVE,
+        choices=State.choices,  # type: ignore
+        default=ItemState.ACTIVE,
         verbose_name="State",
     )
 

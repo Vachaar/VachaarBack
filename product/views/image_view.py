@@ -14,6 +14,7 @@ from product.services.upload_file_validator import (
 )
 from product.throttling import ImageThrottle
 from reusable.jwt import CookieJWTAuthentication
+from user.services.permission import IsNotBannedUser
 
 
 class ImageUploadView(APIView):
@@ -22,7 +23,7 @@ class ImageUploadView(APIView):
     """
 
     authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotBannedUser]
     throttle_classes = [ImageThrottle]
     parser_classes = [MultiPartParser, FormParser]
 

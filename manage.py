@@ -5,7 +5,6 @@ import sys
 
 
 def main():
-    # small comment to check deployment :)
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VachaarBack.settings")
     try:

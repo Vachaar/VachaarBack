@@ -8,7 +8,7 @@ class BaseCustomThrottle(BaseThrottle):
     scope = None
     rate = None
     num_requests = 5
-    duration = 5 * 60
+    duration = 2 * 60
 
     CACHE_KEY_PREFIX = "throttle"  # Added for cache key clarity
 
