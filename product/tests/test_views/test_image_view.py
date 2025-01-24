@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import HttpResponse
 from django.test import TestCase
@@ -7,7 +5,6 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from product.exceptions import ImageNotFoundException
 from product.models.image import Image
 from product.tests.factories.image_factory import ImageFactory
 from product.views.image_view import ImageUploadView, ImageRawView
