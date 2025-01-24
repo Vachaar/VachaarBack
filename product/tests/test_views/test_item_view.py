@@ -32,8 +32,6 @@ class ItemListAllViewTests(TestCase):
             description="Test description",
         )
 
-        self.list_url = reverse("profile-item-list")
-
     def test_list_all_items_success(self):
         # Arrange
         request = self.factory.get(self.list_url)

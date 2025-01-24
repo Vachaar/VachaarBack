@@ -49,6 +49,34 @@ class Item(BaseModel):
         verbose_name="Item Description",
     )
 
+    is_banned = models.BooleanField(
+        default=False,
+        verbose_name="Is Banned",
+    )
+
+    buyer_user = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_query_name="buyer",
+        related_name="bought_items",
+        verbose_name="Buyer user",
+    )
+
+    class State(models.TextChoices):
+        ACTIVE = "active", "Active"
+        INACTIVE = "inactive", "Inactive"
+        SOLD = "sold", "Sold"
+        RESERVED = "reserved", "Reserved"
+
+    state = models.CharField(
+        max_length=20,
+        choices=State.choices, # type: ignore
+        default=State.ACTIVE,
+        verbose_name="State",
+    )
+
     class Meta:
         """
         Metadata options for the Item model.
