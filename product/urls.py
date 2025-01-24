@@ -2,11 +2,12 @@ from django.urls import path
 
 from product.views.category_view import CategoryListView
 from product.views.image_view import ImageUploadView, ImageRawView
-from product.views.item_status_view import MarkItemAsSoldAPIView, ReactivateItemAPIView
-from product.views.item_view import ItemCreateView, ItemListAllView, ItemDetailView
-from product.views.profile_items_view import ProfileItemsAPIView
-from product.views.purchase_request_view import GetBuyerUserPurchaseRequestView, GetPurchaseRequestsForItemView, \
-    AcceptPurchaseRequestAPIView, CreatePurchaseRequestAPIView
+from product.views.item_view import (
+    ItemListView,
+    ItemCreateView,
+    ItemListAllView,
+    ItemDetailView,
+)
 
 urlpatterns = [
     path("categories/", CategoryListView.as_view(), name="category-list"),
@@ -15,6 +16,7 @@ urlpatterns = [
     path("images/<int:image_id>/", ImageRawView.as_view(), name="image-raw"),
 
     path("items/", ItemListAllView.as_view(), name="item-list-all"),
+    path('items/contact-info/<int:item_id>/', ItemSellerContactView.as_view(), name='item-contact-info'),
     path("items/create", ItemCreateView.as_view(), name="create-item"),
     path("items/profile", ProfileItemsAPIView.as_view(), name="profile-item-list"),
     path("items/<int:item_id>/", ItemDetailView.as_view(), name="item-detail"),
