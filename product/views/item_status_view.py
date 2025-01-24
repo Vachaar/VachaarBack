@@ -7,7 +7,10 @@ from rest_framework.views import APIView
 from product.exceptions import ItemNotFoundException
 from product.models.item import Item
 from product.models.purchase_request import PurchaseRequest
-from product.validators.validators import validate_sell_item_request, validate_reactivate_item_request
+from product.validators.validators import (
+    validate_sell_item_request,
+    validate_reactivate_item_request,
+)
 
 
 class MarkItemAsSoldAPIView(APIView):
@@ -30,7 +33,9 @@ class MarkItemAsSoldAPIView(APIView):
 
         self.set_item_state_to_sold(item)
 
-        return Response(self.MARK_ITEM_AS_SOLD_SUCCESS_MSG, status=status.HTTP_200_OK)
+        return Response(
+            self.MARK_ITEM_AS_SOLD_SUCCESS_MSG, status=status.HTTP_200_OK
+        )
 
     @staticmethod
     def set_item_state_to_sold(item):
@@ -58,12 +63,16 @@ class ReactivateItemAPIView(APIView):
 
         self.reactivate_item(item)
 
-        return Response(self.REACTIVATE_ITEM_SUCCESS_MSG, status=status.HTTP_200_OK)
+        return Response(
+            self.REACTIVATE_ITEM_SUCCESS_MSG, status=status.HTTP_200_OK
+        )
 
     @staticmethod
     def reactivate_item(item):
         with transaction.atomic():
             item.state = Item.State.ACTIVE
             item.save()
-            purchase_requests = PurchaseRequest.objects.filter(item=item, state=PurchaseRequest.State.ACCEPTED)
+            purchase_requests = PurchaseRequest.objects.filter(
+                item=item, state=PurchaseRequest.State.ACCEPTED
+            )
             purchase_requests.update(state=PurchaseRequest.State.PENDING)

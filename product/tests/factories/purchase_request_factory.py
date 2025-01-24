@@ -12,5 +12,5 @@ class PurchaseRequestFactory(DjangoModelFactory):
 
     item = factory.SubFactory(ItemFactory)
     buyer_user = factory.SubFactory(UserFactory)
-    comment = factory.Faker('sentence')
+    comment = factory.Faker("sentence")
     state = PurchaseRequest.State.PENDING

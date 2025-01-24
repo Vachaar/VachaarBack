@@ -6,9 +6,7 @@ def create_or_update_purchase_request(item_id, buyer, comment):
     item = Item.objects.get(id=item_id)
 
     purchase_request, created = PurchaseRequest.objects.update_or_create(
-        item=item,
-        buyer_user=buyer,
-        defaults={"comment": comment}
+        item=item, buyer_user=buyer, defaults={"comment": comment}
     )
 
     return purchase_request

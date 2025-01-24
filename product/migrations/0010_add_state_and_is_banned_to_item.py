@@ -20,4 +20,7 @@ class Migration(migrations.Migration):
             name='state',
             field=models.CharField(choices=[('active', 'Active'), ('inactive', 'Inactive'), ('sold', 'Sold'), ('reserved', 'Reserved')], default='active', max_length=20, verbose_name='State'),
         ),
+        migrations.DeleteModel(
+            name='Report',
+        ),
     ]

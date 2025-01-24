@@ -187,6 +187,7 @@ class ItemSellerContactView(APIView):
     """
     View to retrieve contact information of the seller of a specific item.
     """
+
     permission_classes = [IsAuthenticated]
     authentication_classes = [CookieJWTAuthentication]
     throttle_classes = [ItemThrottle]
@@ -199,9 +200,6 @@ class ItemSellerContactView(APIView):
 
         seller = item.seller_user
 
-        seller_contact_info = {
-            "email": seller.email,
-            "phone": seller.phone
-        }
+        seller_contact_info = {"email": seller.email, "phone": seller.phone}
 
         return Response(seller_contact_info, status=status.HTTP_200_OK)

@@ -42,7 +42,7 @@ class PurchaseRequest(BaseModel):
 
     state = models.CharField(
         max_length=20,
-        choices=State.choices, # type: ignore
+        choices=State.choices,  # type: ignore
         default=State.PENDING,
         verbose_name="Request State",
     )
