@@ -57,11 +57,11 @@ class Item(BaseModel):
     buyer_user = models.ForeignKey(
         User,
         null=True,
-        blank=False,
+        blank=True,
         on_delete=models.PROTECT,
         related_query_name="buyer",
         related_name="bought_items",
-        verbose_name="buyer user",
+        verbose_name="Buyer user",
     )
 
     class State(models.TextChoices):

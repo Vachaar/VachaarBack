@@ -12,8 +12,11 @@ from product.services.purchase_request_acceptor import accept_purchase_request
 from product.services.purchase_request_service import create_or_update_purchase_request, get_user_purchase_request_for_item
 from product.validators.accept_purchase_request_validator import validate_accept_purchase_request
 from product.validators.purchase_request_validator import validate_purchase_request
+from reusable.jwt import CookieJWTAuthentication
+
 
 class CreatePurchaseRequestAPIView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -36,6 +39,7 @@ class CreatePurchaseRequestAPIView(APIView):
 
 
 class AcceptPurchaseRequestAPIView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request, purchase_request_id):
@@ -49,6 +53,7 @@ class AcceptPurchaseRequestAPIView(APIView):
 
 
 class GetPurchaseRequestsForItemView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, item_id):
@@ -71,6 +76,7 @@ class GetPurchaseRequestsForItemView(APIView):
 
 
 class GetBuyerUserPurchaseRequestView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, item_id):
@@ -82,7 +88,9 @@ class GetBuyerUserPurchaseRequestView(APIView):
         try:
             item = Item.objects.get(id=item_id)
         except Item.DoesNotExist:
-            return Response({"error": "Item not found."}, status=status.HTTP_404_NOT_FOUND)
+            raise ItemNotFoundException()
+
+        check_item_banned(item)
 
         purchase_request = get_user_purchase_request_for_item(item=item, user=user)
 

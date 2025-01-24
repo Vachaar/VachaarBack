@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from product.models.item import Item
@@ -37,7 +38,7 @@ class PurchaseRequest(BaseModel):
 
     class State(models.TextChoices):
         PENDING = "pending", "Pending"
-        ACCEPTED = "accepted", "accepted"
+        ACCEPTED = "accepted", "Accepted"
 
     state = models.CharField(
         max_length=20,
@@ -45,6 +46,14 @@ class PurchaseRequest(BaseModel):
         default=State.PENDING,
         verbose_name="Request State",
     )
+
+    def clean(self):
+        if not self.pk:
+            return
+        old_instance = Item.objects.get(pk=self.pk)
+
+        if old_instance.state == Item.State.SOLD:
+            raise ValidationError("Cannot change state of sold items.")
 
     class Meta:
         """
