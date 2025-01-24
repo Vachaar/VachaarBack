@@ -76,4 +76,4 @@ class ItemWasNotReservedRequest(CustomApiValidationError):
 
 class InvalidProfileItemsFilterGroup(CustomApiValidationError):
     default_detail: str = "دسته بندی مناسبی انتخاب نکرده اید"
-    default_code: str = "invalid filter group parameter."
+    default_code: str = "invalid filter group."

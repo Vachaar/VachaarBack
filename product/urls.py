@@ -28,7 +28,7 @@ urlpatterns = [
     path("items/create", ItemCreateView.as_view(), name="create-item"),
     path("items/<int:item_id>", ItemDetailView.as_view(), name="item-detail"),
     path("items", ItemListAllView.as_view(), name="item-list-all"),
-    path("items/profile", ProfileItemsAPIView.as_view(), name="profile-item-list"),
+    path("items/profile/<str:filter_group>", ProfileItemsAPIView.as_view(), name="profile-item-list"),
     path("items/<int:item_id>/reactivate", ReactivateItemAPIView.as_view(), name="reactivate_item"),
     path("items/<int:item_id>/sold", MarkItemAsSoldAPIView.as_view(), name="mark_item_as_sold"),
 

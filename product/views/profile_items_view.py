@@ -14,12 +14,11 @@ class ProfileItemsAPIView(APIView):
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request, filter_group):
         """
         Handles GET requests to filter items by specific conditions for the logged-in user.
         """
         user = request.user
-        filter_group = request.query_params.get('filter_group')
 
         if not filter_group:
             raise InvalidProfileItemsFilterGroup()
