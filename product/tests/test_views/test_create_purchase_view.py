@@ -10,7 +10,7 @@ from product.views.purchase_request_view import CreatePurchaseRequestAPIView
 from user.tests.factories.user_factory import UserFactory
 
 
-class CreatePurchaseRequestAPITests(TestCase):
+class CreatePurchaseRequestTests(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()

@@ -7,7 +7,7 @@ from product.models.purchase_request import PurchaseRequest
 from product.tests.factories.category_factory import CategoryFactory
 from product.tests.factories.item_factory import ItemFactory
 from product.tests.factories.purchase_request_factory import PurchaseRequestFactory
-from product.views.purchase_request_view import CreatePurchaseRequestAPIView, AcceptPurchaseRequestAPIView
+from product.views.purchase_request_view import AcceptPurchaseRequestAPIView
 from user.tests.factories.user_factory import UserFactory
 
 
@@ -32,13 +32,12 @@ class AcceptPurchaseRequestViewTests(TestCase):
         url = reverse("accept-purchase-request", kwargs={"purchase_request_id": self.purchase_request.id})
         self.accept_purchase_request = self.factory.post(url, {}, format="json")
 
-
     def test_accept_purchase_request_with_seller_user(self):
         # Arrange
         force_authenticate(self.accept_purchase_request, user=self.seller_user)
 
         # Act
-        response= self.accept_purchase_request_view(
+        response = self.accept_purchase_request_view(
             self.accept_purchase_request, purchase_request_id=self.purchase_request.id)
 
         # Assert
@@ -51,7 +50,7 @@ class AcceptPurchaseRequestViewTests(TestCase):
         force_authenticate(self.accept_purchase_request, user=self.buyer_user)
 
         # Act
-        response= self.accept_purchase_request_view(
+        response = self.accept_purchase_request_view(
             self.accept_purchase_request, purchase_request_id=self.purchase_request.id)
 
         # Assert
@@ -63,10 +62,9 @@ class AcceptPurchaseRequestViewTests(TestCase):
         force_authenticate(self.accept_purchase_request, user=self.seller_user)
 
         # Act
-        response= self.accept_purchase_request_view(
-            self.accept_purchase_request, purchase_request_id=self.purchase_request.id+1)
+        response = self.accept_purchase_request_view(
+            self.accept_purchase_request, purchase_request_id=self.purchase_request.id + 1)
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['code'], "purchase request not found.")
-

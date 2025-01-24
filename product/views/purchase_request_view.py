@@ -6,12 +6,13 @@ from rest_framework.views import APIView
 from product.exceptions import ItemNotFoundException
 from product.models.item import Item
 from product.models.purchase_request import PurchaseRequest
+from product.serializers.purchase_creation_serializer import CreatePurchaseRequestSerializer
 from product.serializers.purchase_request_serializer import PurchaseRequestSerializer
 from product.services.banned_item_checker import check_item_banned
 from product.services.purchase_request_acceptor import accept_purchase_request
-from product.services.purchase_request_service import create_or_update_purchase_request, get_user_purchase_request_for_item
-from product.validators.accept_purchase_request_validator import validate_accept_purchase_request
-from product.validators.purchase_request_validator import validate_purchase_request
+from product.services.purchase_request_service import create_or_update_purchase_request, \
+    get_user_purchase_request_for_item
+from product.validators.validators import validate_accept_purchase_request
 from reusable.jwt import CookieJWTAuthentication
 
 
@@ -23,24 +24,26 @@ class CreatePurchaseRequestAPIView(APIView):
         """
         Handles POST requests to create a new purchase request.
         """
-        user = request.user  # Get the logged-in user
-        data = request.data
-        item_id = data.get("item_id")
-        comment = data.get("comment", "")
 
-        validate_purchase_request(item_id)
+        serializer = CreatePurchaseRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            purchase_request = create_or_update_purchase_request(
+                item_id=serializer.validated_data.get("item_id"),
+                buyer=request.user,
+                comment=serializer.validated_data.get("comment"))
 
-        purchase_request = create_or_update_purchase_request(item_id=item_id, buyer=user, comment=comment)
-
-        return Response(
-            {"request_id": purchase_request.id},
-            status=status.HTTP_201_CREATED,
-        )
+            return Response(
+                {"request_id": purchase_request.id},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AcceptPurchaseRequestAPIView(APIView):
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
+
+    ACCEPT_PURCHASE_SUCCESS_MSG = {"detail": "آیتم فعال شد."}
 
     def post(self, request, purchase_request_id):
         """
@@ -49,7 +52,7 @@ class AcceptPurchaseRequestAPIView(APIView):
         user = request.user
         validate_accept_purchase_request(user, purchase_request_id)
         accept_purchase_request(purchase_request_id)
-        return Response({"message": "درخواست خرید با موفقیت ثبت شد."}, status=status.HTTP_200_OK)
+        return Response(self.ACCEPT_PURCHASE_SUCCESS_MSG, status=status.HTTP_200_OK)
 
 
 class GetPurchaseRequestsForItemView(APIView):
