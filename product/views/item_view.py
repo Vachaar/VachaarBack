@@ -168,7 +168,9 @@ class ItemEditView(APIView):
         if serializer.is_valid():
             try:
                 updated_item = edit_item_with_banners(
-                    serializer.validated_data, request.user
+                    item_id,
+                    serializer.validated_data,
+                    request.user
                 )
                 return Response(
                     {"item_id": updated_item.id}, status=status.HTTP_200_OK

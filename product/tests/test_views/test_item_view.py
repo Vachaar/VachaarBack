@@ -166,7 +166,14 @@ class ItemEditViewTests(TestCase):
         self.another_user = UserFactory()
         self.category1 = CategoryFactory()
         self.category2 = CategoryFactory()
-        self.item = ItemFactory(
+        self.item0 = ItemFactory(
+            title="Test Item 0",
+            seller_user=self.seller_user,
+            category=self.category1,
+            price=101,
+            description="Test description"
+        )
+        self.item1 = ItemFactory(
             title="Test Item 1",
             seller_user=self.seller_user,
             category=self.category1,
@@ -174,9 +181,9 @@ class ItemEditViewTests(TestCase):
             description="Test description"
         )
         self.image1 = ImageFactory()
-        self.banner1 = BannerFactory(item=self.item, image=self.image1, order=1)
+        self.banner1 = BannerFactory(item=self.item1, image=self.image1, order=1)
 
-        self.valid_item_id = self.item.id
+        self.valid_item_id = self.item1.id
         self.invalid_item_id = 99999
 
         self.image2 = ImageFactory()
@@ -199,8 +206,8 @@ class ItemEditViewTests(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.item.refresh_from_db()
-        self.assertEqual(self.item.title, "Test Item 2")
+        self.item1.refresh_from_db()
+        self.assertEqual(self.item1.title, "Test Item 2")
         banners = Banner.objects.all()
         self.assertEqual(len(banners), 1)
         banner = banners[0]

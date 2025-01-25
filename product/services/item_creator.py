@@ -9,11 +9,12 @@ from product.models.image import Image
 from product.models.item import Item
 
 
-def edit_item_with_banners(data, seller_user):
+def edit_item_with_banners(item_id, data, seller_user):
     """
       Service to edit an existing item along with its banners.
 
       Args:
+          item_id: The id of the item to edit.
           data (dict): Validated data containing item details and banner information.
           seller_user: The authenticated user editing the item.
 
@@ -34,7 +35,7 @@ def edit_item_with_banners(data, seller_user):
 
     with transaction.atomic():
         item_data = create_item_data(data, seller_user)
-        item_id = Item.objects.update(**item_data)
+        Item.objects.filter(id=item_id).update(**item_data)
         item = Item.objects.get(id=item_id)
 
         remove_banners(item)

@@ -6,7 +6,7 @@ from product.tests.factories.category_factory import CategoryFactory
 from product.tests.factories.image_factory import ImageFactory
 
 
-class ItemCreationSerializerTests(TestCase):
+class ItemDataSerializerTests(TestCase):
     def setUp(self):
         self.valid_category = CategoryFactory()
         self.valid_image = ImageFactory()
