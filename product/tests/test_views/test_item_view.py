@@ -180,19 +180,18 @@ class ItemEditViewTests(TestCase):
         self.view = ItemEditView.as_view()
         self.seller_user = UserFactory()
         self.another_user = UserFactory()
-        self.category1 = CategoryFactory()
-        self.category2 = CategoryFactory()
-        self.item0 = ItemFactory(
+        self.category = CategoryFactory()
+        self.some_item = ItemFactory(
             title="Test Item 0",
             seller_user=self.seller_user,
-            category=self.category1,
+            category=self.category,
             price=101,
             description="Test description",
         )
-        self.item1 = ItemFactory(
+        self.item_to_edit = ItemFactory(
             title="Test Item 1",
             seller_user=self.seller_user,
-            category=self.category1,
+            category=self.category,
             price=101,
             description="Test description",
         )
@@ -201,7 +200,7 @@ class ItemEditViewTests(TestCase):
             item=self.item1, image=self.image1, order=1
         )
 
-        self.valid_item_id = self.item1.id
+        self.valid_item_id = self.item_to_edit.id
         self.invalid_item_id = 99999
 
         self.image2 = ImageFactory()
@@ -226,8 +225,8 @@ class ItemEditViewTests(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.item1.refresh_from_db()
-        self.assertEqual(self.item1.title, "Test Item 2")
+        self.item_to_edit.refresh_from_db()
+        self.assertEqual(self.item_to_edit.title, "Test Item 2")
         banners = Banner.objects.all()
         self.assertEqual(len(banners), 1)
         banner = banners[0]
@@ -248,6 +247,83 @@ class ItemEditViewTests(TestCase):
         # Arrange
         url = reverse("edit-item", kwargs={"item_id": self.invalid_item_id})
         request = self.factory.put(url, data=self.edit_payload, format="json")
+        force_authenticate(request, user=self.seller_user)
+
+        # Act
+        response = self.view(request, self.invalid_item_id)
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], "item not found.")
+
+
+class ItemDeleteViewTests(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.view = ItemDeleteView.as_view()
+        self.seller_user = UserFactory()
+        self.another_user = UserFactory()
+
+        self.invalid_item_id = 9999
+
+        self.category = CategoryFactory()
+        self.item_to_delete = ItemFactory(
+            title="Test Item 0",
+            seller_user=self.seller_user,
+            category=self.category,
+            price=101,
+            description="Test description"
+        )
+        self.some_item = ItemFactory(
+            title="Test Item 1",
+            seller_user=self.seller_user,
+            category=self.category,
+            price=101,
+            description="Test description"
+        )
+
+        self.image1 = ImageFactory()
+        self.banner1 = BannerFactory(item=self.item_to_delete, image=self.image1, order=1)
+
+        self.image2 = ImageFactory()
+        self.banner2 = BannerFactory(item=self.some_item, image=self.image2, order=1)
+
+        url = reverse("delete-item", kwargs={"item_id": self.item_to_delete.id})
+        self.delete_valid_item_request = self.factory.delete(url, format="json")
+
+    def test_delete_valid_item(self):
+        # Arrange
+        force_authenticate(self.delete_valid_item_request, user=self.seller_user)
+
+        # Act
+        response = self.view(self.delete_valid_item_request, self.item_to_delete.id)
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(Item.objects.all()), 1)
+        self.assertEqual(len(Banner.objects.all()), 1)
+        self.assertEqual(len(Image.objects.all()), 1)
+
+        self.assertEqual(Item.objects.first().id, self.some_item.id)
+        self.assertEqual(Banner.objects.first().id, self.banner2.id)
+        self.assertEqual(Image.objects.first().id, self.image2.id)
+
+    def test_delete_item_unauthenticated(self):
+        # Arrange
+        force_authenticate(self.delete_valid_item_request, user=self.another_user)
+
+        # Act
+        response = self.view(self.delete_valid_item_request, self.item_to_delete.id)
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], "unauthorized request.")
+
+    def test_delete_invalid_item(self):
+        # Arrange
+        url = reverse("delete-item", kwargs={"item_id": self.invalid_item_id})
+        request = self.factory.delete(url, format="json")
         force_authenticate(request, user=self.seller_user)
 
         # Act

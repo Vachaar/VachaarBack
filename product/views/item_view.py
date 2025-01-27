@@ -16,10 +16,7 @@ from product.exceptions import (
 from product.models.item import Item
 from product.serializers.item_data_serializer import ItemDataSerializer
 from product.serializers.item_serializer import ItemWithImagesSerializer
-from product.services.item_creator import (
-    create_item_with_banners,
-    edit_item_with_banners,
-)
+from product.services.item_repository import create_item_with_banners, edit_item_with_banners, delete_item_with_banners
 from product.throttling import ItemThrottle
 from reusable.jwt import CookieJWTAuthentication
 from user.services.permission import IsNotBannedUser
@@ -173,6 +170,31 @@ class ItemEditView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ItemDeleteView(APIView):
+    """
+    View to delete a single item by ID.
+    """
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
+    throttle_classes = [ItemThrottle]
+
+    def delete(self, request, item_id):
+        try:
+            item = Item.objects.get(id=item_id)
+        except Item.DoesNotExist:
+            raise ItemNotFoundException()
+
+        if item.seller_user != request.user:
+            raise UnauthorizedEditItemRequest()
+
+        delete_item_with_banners(item_id)
+
+        return Response(
+            {"item_id": item_id}, status=status.HTTP_200_OK
+        )
+
+
 class ItemSellerContactView(APIView):
     """
     View to retrieve contact information of the seller of a specific item.
@@ -190,6 +212,9 @@ class ItemSellerContactView(APIView):
 
         seller = item.seller_user
 
-        seller_contact_info = {"email": seller.email, "phone": seller.phone}
+        seller_contact_info = {
+            "email": seller.email,
+            "phone": seller.phone
+        }
 
         return Response(seller_contact_info, status=status.HTTP_200_OK)

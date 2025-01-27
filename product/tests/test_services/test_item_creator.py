@@ -6,8 +6,8 @@ from product.exceptions import (
 )
 from product.models.banner import Banner
 from product.models.item import Item
-from product.services.item_creator import create_banners
-from product.services.item_creator import create_item_with_banners
+from product.services.item_repository import create_banners
+from product.services.item_repository import create_item_with_banners
 from product.tests.factories.category_factory import CategoryFactory
 from product.tests.factories.image_factory import ImageFactory
 from product.tests.factories.item_factory import ItemFactory

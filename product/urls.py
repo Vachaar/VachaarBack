@@ -11,7 +11,7 @@ from product.views.item_view import (
     ItemListAllView,
     ItemDetailView,
     ItemSellerContactView,
-    ItemEditView,
+    ItemEditView, ItemDeleteView,
 )
 from product.views.profile_items_view import ProfileItemsAPIView
 from product.views.purchase_request_view import (
@@ -32,6 +32,7 @@ urlpatterns = [
     ),
     path("items/create", ItemCreateView.as_view(), name="create-item"),
     path("items/edit/<int:item_id>", ItemEditView.as_view(), name="edit-item"),
+    path("items/delete/<int:item_id>", ItemDeleteView.as_view(), name="delete-item"),
     path("items/<int:item_id>", ItemDetailView.as_view(), name="item-detail"),
     path("items", ItemListAllView.as_view(), name="item-list-all"),
     path(
