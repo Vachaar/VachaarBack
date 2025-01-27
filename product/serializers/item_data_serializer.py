@@ -10,9 +10,9 @@ from product.models.category import Category
 from product.serializers.banner_data_serializer import BannerDataSerializer
 
 
-class ItemCreationSerializer(serializers.Serializer):
+class ItemDataSerializer(serializers.Serializer):
     """
-    Serializer to validate item creation data, including banners and category.
+    Serializer to validate item data, including banners and category.
     """
 
     title = serializers.CharField(max_length=255)

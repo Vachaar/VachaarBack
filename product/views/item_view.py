@@ -9,11 +9,11 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from product.exceptions import ItemNotFoundException
+from product.exceptions import ItemNotFoundException, UnauthorizedEditItemRequest
 from product.models.item import Item
-from product.serializers.item_creation_serializer import ItemCreationSerializer
+from product.serializers.item_data_serializer import ItemDataSerializer
 from product.serializers.item_serializer import ItemWithImagesSerializer
-from product.services.item_creator import create_item_with_banners
+from product.services.item_creator import create_item_with_banners, edit_item_with_banners
 from product.throttling import ItemThrottle
 from reusable.jwt import CookieJWTAuthentication
 
@@ -108,7 +108,7 @@ class ItemCreateView(APIView):
     throttle_classes = [ItemThrottle]
 
     def post(self, request):
-        serializer = ItemCreationSerializer(data=request.data)
+        serializer = ItemDataSerializer(data=request.data)
         if serializer.is_valid():
             try:
                 created_item = create_item_with_banners(
@@ -144,6 +144,42 @@ class ItemDetailView(APIView):
 
         serializer = self.serializer_class(item)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ItemEditView(APIView):
+    """
+    View to retrieve a single item by ID.
+    """
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
+    throttle_classes = [ItemThrottle]
+
+    def put(self, request, item_id):
+        try:
+            item = Item.objects.get(id=item_id)
+        except Item.DoesNotExist:
+            raise ItemNotFoundException()
+
+        if item.seller_user != request.user:
+            raise UnauthorizedEditItemRequest()
+
+        serializer = ItemDataSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                updated_item = edit_item_with_banners(
+                    item_id,
+                    serializer.validated_data,
+                    request.user
+                )
+                return Response(
+                    {"item_id": updated_item.id}, status=status.HTTP_200_OK
+                )
+            except (ValueError, ValidationError) as e:
+                return Response(
+                    {"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST
+                )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ItemSellerContactView(APIView):
