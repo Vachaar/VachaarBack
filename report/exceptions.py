@@ -8,9 +8,9 @@ class ReasonIsNotValid(CustomApiValidationError):
 
 class ItemDoesNotExist(CustomApiValidationError):
     default_detail: str = "آیتمی با این شناسه وجود ندارد"
-    default_code: str = "item is not exists."
+    default_code: str = "item does not exist."
 
 
 class UserDoesNotExist(CustomApiValidationError):
     default_detail: str = "کاربری با این شناسه وجود ندارد"
-    default_code: str = "user is not exists."
+    default_code: str = "user does not exist."

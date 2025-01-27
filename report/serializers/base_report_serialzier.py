@@ -3,14 +3,20 @@ from rest_framework import serializers
 from report.exceptions import ReasonIsNotValid
 from report.models.base_report import ReportReason
 
+REASON_MAPPING = {
+    1: ReportReason.FRAUD,
+    2: ReportReason.ILLEGAL,
+    3: ReportReason.AMORAL,
+    4: ReportReason.PRICE_ISSUE,
+    5: ReportReason.CONTACT_ISSUE,
+    6: ReportReason.CATEGORY_ISSUE,
+    7: ReportReason.RESPONSIVENESS_ISSUE,
+    8: ReportReason.SPAM,
+    9: ReportReason.OTHER,
+}
+
 
 class BaseReportSerializer(serializers.Serializer):
-    reason = serializers.ChoiceField(
-        choices=ReportReason.choices,
-        write_only=True,
-        help_text="Reason for reporting.",
-    )
-
     reported_field = (
         None  # Define the specific field to be overridden in subclasses
     )
@@ -18,16 +24,19 @@ class BaseReportSerializer(serializers.Serializer):
         None  # Define the specific report model class to be overridden
     )
 
-    def validate_reason(self, value):
-        """
-        Validate the reason field.
-        """
-        valid_reasons = [choice[0] for choice in ReportReason.choices]
+    reason_id = serializers.IntegerField(
+        write_only=True,
+    )
 
-        if value not in valid_reasons:
+    def validate_reason_id(self, value):
+        """
+        Validate the reason field using the frontend mapping.
+        """
+
+        if value not in REASON_MAPPING:
             raise ReasonIsNotValid()
 
-        return value
+        return REASON_MAPPING[value]
 
     def validate(self, attrs):
         if not self.reported_field or not self.report_class:
@@ -38,7 +47,7 @@ class BaseReportSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         reported_instance = validated_data[self.reported_field]
-        reason = validated_data["reason"]
+        reason = validated_data["reason_id"]
 
         report, created = self.report_class.objects.get_or_create(
             **{self.reported_field: reported_instance},

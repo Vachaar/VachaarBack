@@ -7,7 +7,7 @@ from report.services import notifier_service
 
 
 class ItemReport(BaseReport):
-    item = models.OneToOneField(
+    item: Item = models.OneToOneField(
         Item,
         on_delete=models.CASCADE,
         related_name="aggregated_report",
@@ -15,11 +15,11 @@ class ItemReport(BaseReport):
         db_index=True,
     )
 
-    price_issue = models.PositiveIntegerField(default=0)
+    price_issue: int = models.PositiveIntegerField(default=0)
 
-    category_issue = models.PositiveIntegerField(default=0)
+    category_issue: int = models.PositiveIntegerField(default=0)
 
-    responsiveness_issue = models.PositiveIntegerField(default=0)
+    responsiveness_issue: int = models.PositiveIntegerField(default=0)
 
     class Meta:
         verbose_name = _("Item Aggregated Report")
@@ -29,10 +29,10 @@ class ItemReport(BaseReport):
         return f"[Item={self.item.id}] Status={self.get_status_display()}"
 
     @property
-    def get_reported_instance(self):
+    def get_reported_instance(self) -> Item:
         return self.item
 
-    def notify_ban(self):
+    def notify_ban(self) -> None:
         notifier_service.send_ban_item_email(
             user=self.item.seller_user,
             reason=self.admin_note,

@@ -1,9 +1,12 @@
+from product.exceptions import ItemNotFoundException
 from product.models.item import Item
 from product.models.purchase_request import PurchaseRequest
 
 
 def create_or_update_purchase_request(item_id, buyer, comment):
-    item = Item.objects.get(id=item_id)
+    item = Item.objects.filter(id=item_id, is_banned=False).first()
+    if not item:
+        raise ItemNotFoundException()
 
     purchase_request, created = PurchaseRequest.objects.update_or_create(
         item=item, buyer_user=buyer, defaults={"comment": comment}

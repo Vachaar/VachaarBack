@@ -11,25 +11,25 @@ from product.models.item import Item
 
 def edit_item_with_banners(item_id, data, seller_user):
     """
-      Service to edit an existing item along with its banners.
+    Service to edit an existing item along with its banners.
 
-      Args:
-          item_id: The id of the item to edit.
-          data (dict): Validated data containing item details and banner information.
-          seller_user: The authenticated user editing the item.
+    Args:
+        item_id: The id of the item to edit.
+        data (dict): Validated data containing item details and banner information.
+        seller_user: The authenticated user editing the item.
 
-      Returns:
-          Item: The updated item.
+    Returns:
+        Item: The updated item.
 
-      Raises:
-          SellerUserIsRequiredException: If the `seller_user` is not provided.
-          ValueError: If any unexpected issue arises in banner removal or creation.
+    Raises:
+        SellerUserIsRequiredException: If the `seller_user` is not provided.
+        ValueError: If any unexpected issue arises in banner removal or creation.
 
-      Note:
-          Uses database transaction to ensure atomicity. If any operation fails,
-          all changes will be rolled back. This includes removing existing banners
-          before adding new ones.
-      """
+    Note:
+        Uses database transaction to ensure atomicity. If any operation fails,
+        all changes will be rolled back. This includes removing existing banners
+        before adding new ones.
+    """
     if not seller_user:
         raise SellerUserIsRequiredException()
 

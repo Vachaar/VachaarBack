@@ -8,7 +8,7 @@ from user.models.user import User
 
 
 class UserReport(BaseReport):
-    user = models.OneToOneField(
+    user: User = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         related_name="aggregated_report",
@@ -26,16 +26,16 @@ class UserReport(BaseReport):
         )
 
     @property
-    def get_reported_instance(self):
+    def get_reported_instance(self) -> User:
         return self.user
 
-    def notify_ban(self):
+    def notify_ban(self) -> None:
         notifier_service.send_ban_user_email(
             user=self.user,
             reason=self.admin_note,
         )
 
-    def ban(self):
+    def ban(self) -> None:
         """
         Ban the user and all items where the user is the seller.
         """
@@ -45,7 +45,7 @@ class UserReport(BaseReport):
 
             super().ban()
 
-    def unban(self):
+    def unban(self) -> None:
         """
         Unban the user and unban their items that don't have active reports.
         """

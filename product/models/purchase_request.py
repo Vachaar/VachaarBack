@@ -11,27 +11,29 @@ class PurchaseRequest(BaseModel):
     Represents a request made by a user to purchase an item.
     """
 
-    item = models.ForeignKey(
+    item: Item = models.ForeignKey(
         Item,
         null=False,
         blank=False,
+        db_index=True,
         on_delete=models.CASCADE,
         related_query_name="purchase_requests",
         related_name="purchase_requests",
         verbose_name="Item",
     )
 
-    buyer_user = models.ForeignKey(
+    buyer_user: User = models.ForeignKey(
         User,
         null=False,
         blank=False,
+        db_index=True,
         on_delete=models.CASCADE,
         related_query_name="buyer",
         related_name="purchase_requests",
         verbose_name="Buyer",
     )
 
-    comment = models.TextField(
+    comment: str = models.TextField(
         blank=True,
         verbose_name="Buyer Comment",
     )
@@ -40,7 +42,7 @@ class PurchaseRequest(BaseModel):
         PENDING = "pending", "Pending"
         ACCEPTED = "accepted", "Accepted"
 
-    state = models.CharField(
+    state: str = models.CharField(
         max_length=20,
         choices=State.choices,  # type: ignore
         default=State.PENDING,

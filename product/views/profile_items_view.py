@@ -33,6 +33,7 @@ class ProfileItemsAPIView(APIView):
             "created_by_user_reserved": Q(
                 seller_user=user, state=Item.State.RESERVED
             ),
+            "banned": Q(seller_user=user, is_banned=True),
         }
 
         query_filter = filter_map.get(filter_group)

@@ -11,10 +11,11 @@ from product.validators.validators import (
     validate_sell_item_request,
     validate_reactivate_item_request,
 )
+from user.services.permission import IsNotBannedUser
 
 
 class MarkItemAsSoldAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotBannedUser]
 
     MARK_ITEM_AS_SOLD_SUCCESS_MSG = {"detail": "آیتم با موفقیت فروخته شد."}
 
@@ -44,7 +45,7 @@ class MarkItemAsSoldAPIView(APIView):
 
 
 class ReactivateItemAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotBannedUser]
 
     REACTIVATE_ITEM_SUCCESS_MSG = {"detail": "آیتم فعال شد."}
 

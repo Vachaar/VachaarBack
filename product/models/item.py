@@ -8,17 +8,10 @@ from reusable.models import BaseModel
 from user.models.user import User
 
 
-class ItemState(models.TextChoices):
-    ACTIVE = "active", "Active"
-    INACTIVE = "inactive", "Inactive"
-    SOLD = "sold", "Sold"
-    RESERVED = "reserved", "Reserved"
-
-
 class Item(BaseModel):
     """
-    Represents an item in the inventory with details such as title, category, price,
-    description, transaction status, seller, and reserver.
+    Represents an item in the inventory with details such as
+        title, seller_user, category, price, description, is_banned, buyer_user, and state.
     """
 
     title: str = models.CharField(
@@ -56,12 +49,12 @@ class Item(BaseModel):
         verbose_name="Item Description",
     )
 
-    is_banned = models.BooleanField(
+    is_banned: bool = models.BooleanField(
         default=False,
         verbose_name="Is Banned",
     )
 
-    buyer_user = models.ForeignKey(
+    buyer_user: User = models.ForeignKey(
         User,
         null=True,
         blank=True,
@@ -71,10 +64,16 @@ class Item(BaseModel):
         verbose_name="Buyer user",
     )
 
-    state = models.CharField(
+    class State(models.TextChoices):
+        ACTIVE = "active", "Active"
+        INACTIVE = "inactive", "Inactive"
+        SOLD = "sold", "Sold"
+        RESERVED = "reserved", "Reserved"
+
+    state: str = models.CharField(
         max_length=20,
         choices=State.choices,  # type: ignore
-        default=ItemState.ACTIVE,
+        default=State.ACTIVE,
         verbose_name="State",
     )
 

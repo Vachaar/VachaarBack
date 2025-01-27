@@ -62,7 +62,7 @@ class User(AbstractUser):
         ],
         null=True,
         blank=True,
-        db_index=False,
+        db_index=True,
         verbose_name="National ID",
     )
 
@@ -73,7 +73,7 @@ class User(AbstractUser):
         ],
         null=False,
         blank=False,
-        db_index=False,
+        db_index=True,
         verbose_name="Phone Number",
     )
 
@@ -87,6 +87,7 @@ class User(AbstractUser):
         unique=True,
         null=False,
         blank=False,
+        db_index=True,
         validators=[
             UserValidator.email_validator,
         ],

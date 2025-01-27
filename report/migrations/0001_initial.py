@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('product', '0010_item_is_banned_delete_report'),
+        ('product', '0010_add_state_and_is_banned_to_item'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

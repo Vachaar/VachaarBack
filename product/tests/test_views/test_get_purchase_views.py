@@ -9,7 +9,6 @@ from product.tests.factories.purchase_request_factory import (
     PurchaseRequestFactory,
 )
 from product.views.purchase_request_view import (
-    CreatePurchaseRequestAPIView,
     GetPurchaseRequestsForItemView,
     GetBuyerUserPurchaseRequestView,
 )

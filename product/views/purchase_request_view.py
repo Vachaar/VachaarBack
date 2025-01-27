@@ -20,11 +20,12 @@ from product.services.purchase_request_service import (
 )
 from product.validators.validators import validate_accept_purchase_request
 from reusable.jwt import CookieJWTAuthentication
+from user.services.permission import IsNotBannedUser
 
 
 class CreatePurchaseRequestAPIView(APIView):
     authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotBannedUser]
 
     def post(self, request):
         """
@@ -48,7 +49,7 @@ class CreatePurchaseRequestAPIView(APIView):
 
 class AcceptPurchaseRequestAPIView(APIView):
     authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotBannedUser]
 
     ACCEPT_PURCHASE_SUCCESS_MSG = {"detail": "آیتم فعال شد."}
 
@@ -66,7 +67,7 @@ class AcceptPurchaseRequestAPIView(APIView):
 
 class GetPurchaseRequestsForItemView(APIView):
     authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotBannedUser]
 
     def get(self, request, item_id):
         """
@@ -89,7 +90,7 @@ class GetPurchaseRequestsForItemView(APIView):
 
 class GetBuyerUserPurchaseRequestView(APIView):
     authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotBannedUser]
 
     def get(self, request, item_id):
         """

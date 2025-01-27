@@ -124,6 +124,8 @@ stack-data==0.6.3
     # via ipython
 tblib==3.0.0
     # via -r requirements.in
+tenacity==9.0.0
+    # via -r requirements.in
 termcolor==2.5.0
     # via -r requirements.in
 traitlets==5.14.3

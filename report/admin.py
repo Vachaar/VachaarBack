@@ -1,6 +1,9 @@
 from django.conf import settings
 from django.contrib import admin
+from django.db import transaction
 from django.db.models import F
+from django.urls import reverse
+from django.utils.html import escape
 from django.utils.html import format_html
 
 from report.models.item_report import ItemReport
@@ -72,7 +75,7 @@ class UserReportAdmin(BaseReportAdmin):
 
     list_display = ("user", "status", "total_reports", "admin_note")
     search_fields = ("user__email", "user__phone")
-    actions = ["ban_report", "unban_report"]
+    actions = ["ban", "unban"]
 
 
 @admin.register(ItemReport)
@@ -125,7 +128,9 @@ class ItemReportAdmin(BaseReportAdmin):
         """
         Provides a link to view the item on the website.
         """
-        item_url = f"{settings.BASE_URL}/product/items/{obj.item.id}/"
+        item_url = escape(settings.BASE_URL.rstrip("/")) + reverse(
+            "item-detail", args=[obj.item.id]
+        )
         return format_html(
             '<a href="{}" target="_blank">View Item</a>', item_url
         )
@@ -137,11 +142,12 @@ class ItemReportAdmin(BaseReportAdmin):
         Ban the seller of the reported item.
         """
         for report in queryset:
-            seller = report.item.seller_user
-            if seller:
-                seller.is_banned = True
-                seller.save()
-                seller.sold_items.update(is_banned=True)
+            with transaction.atomic():
+                seller = report.item.seller_user
+                if seller and not seller.is_banned:
+                    seller.is_banned = True
+                    seller.save()
+                    seller.sold_items.update(is_banned=True)
 
         self.message_user(request, "Selected users have been banned.")
 

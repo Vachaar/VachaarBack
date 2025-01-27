@@ -7,6 +7,7 @@ from typing import Optional
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils import timezone
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from reusable.exceptions import EmailCanNotBeSentException
 from user.models.user import User
@@ -41,6 +42,13 @@ class EmailSender(metaclass=SingletonABCMeta):
             to=[recipient_email],
         )
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=4, max=10),
+    )
+    def send_with_retry(self, email: EmailMessage):
+        email.send()
+
     def send_email(self, user: User, reason: Optional[str] = None):
         """
         Template method for sending emails.
@@ -55,7 +63,8 @@ class EmailSender(metaclass=SingletonABCMeta):
                 message=message,
                 recipient_email=user.email,
             )
-            email.send()
+            self.send_with_retry(email)
+
         except Exception:
             raise EmailCanNotBeSentException()
 

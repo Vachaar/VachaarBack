@@ -3,6 +3,6 @@ from rest_framework import permissions
 
 class IsNotBannedUser(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.user.is_banned:
+        if not request.user or request.user.is_anonymous:
             return False
-        return True
+        return not request.user.is_banned

@@ -8,7 +8,12 @@ from product.tests.factories.banner_factory import BannerFactory
 from product.tests.factories.category_factory import CategoryFactory
 from product.tests.factories.image_factory import ImageFactory
 from product.tests.factories.item_factory import ItemFactory
-from product.views.item_view import ItemListView, ItemCreateView, ItemDetailView, ItemEditView
+from product.views.item_view import (
+    ItemListView,
+    ItemCreateView,
+    ItemDetailView,
+    ItemEditView,
+)
 from user.tests.factories.user_factory import UserFactory
 
 
@@ -181,17 +186,19 @@ class ItemEditViewTests(TestCase):
             seller_user=self.seller_user,
             category=self.category1,
             price=101,
-            description="Test description"
+            description="Test description",
         )
         self.item1 = ItemFactory(
             title="Test Item 1",
             seller_user=self.seller_user,
             category=self.category1,
             price=101,
-            description="Test description"
+            description="Test description",
         )
         self.image1 = ImageFactory()
-        self.banner1 = BannerFactory(item=self.item1, image=self.image1, order=1)
+        self.banner1 = BannerFactory(
+            item=self.item1, image=self.image1, order=1
+        )
 
         self.valid_item_id = self.item1.id
         self.invalid_item_id = 99999
@@ -205,7 +212,9 @@ class ItemEditViewTests(TestCase):
             "banners": [{"image_id": self.image2.id, "order": 1}],
         }
         url = reverse("edit-item", kwargs={"item_id": self.valid_item_id})
-        self.edit_valid_item_request = self.factory.put(url, data=self.edit_payload, format="json")
+        self.edit_valid_item_request = self.factory.put(
+            url, data=self.edit_payload, format="json"
+        )
 
     def test_edit_valid_item(self):
         # Arrange
