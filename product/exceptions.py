@@ -79,10 +79,15 @@ class UnauthorizedPurchaseActionRequest(CustomApiValidationError):
 
 
 class ItemWasNotReservedRequest(CustomApiValidationError):
-    default_detail: str = "آیتم باید رزرو شده باشد."
+    default_detail: str = "آیتم باید رزرو شده باشد"
     default_code: str = "item was not reserved."
 
 
 class InvalidProfileItemsFilterGroup(CustomApiValidationError):
     default_detail: str = "دسته بندی مناسبی انتخاب نکرده اید"
     default_code: str = "invalid filter group."
+
+
+class PurchaseRequestAlreadyAcceptedException(CustomApiValidationError):
+    default_detail: str = "درخواست خریداری این آیتم قبلا تایید شده است"
+    default_code: str = "purchase request already accepted."
