@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 )
 
 const (
@@ -18,13 +20,13 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("DoClient failed: %v", err))
 	}
-	
+
 	all, err := io.ReadAll(do.Body)
 	if err != nil {
 		panic(fmt.Errorf("ReadAll all failed: %v", err))
 	}
-	fmt.Printlf("status code was [%v]\n",do.StatusCode)
-	fmt.Printlf("response is [%v]\n",string(all))
+	fmt.Printf("status code was [%v]\n", do.StatusCode)
+	fmt.Printf("response is [%v]\n", string(all))
 }
 
 func createUrl(route string) string {
