@@ -160,9 +160,7 @@ class ItemReportAdmin(BaseReportAdmin):
         """
         Provides a link to view the item on the website.
         """
-        item_url = escape(settings.BASE_URL.rstrip("/")) + reverse(
-            "item-detail", args=[obj.item.id]
-        )
+        item_url = escape(settings.BASE_URL.rstrip("/")) + "item/" + str(obj.item.id)
         return format_html(
             '<a href="{}" target="_blank">View Item</a>', item_url
         )
