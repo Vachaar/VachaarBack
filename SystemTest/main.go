@@ -13,20 +13,16 @@ const (
 func main() {
 	url := createUrl("product/items/1")
 	fmt.Println("script started,", url)
-	request, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		panic(fmt.Errorf("NewRequest failed: %v", err))
-	}
-	do, err := http.DefaultClient.Do(request)
+	get, err := http.Get(url)
 	if err != nil {
 		panic(fmt.Errorf("DoClient failed: %v", err))
 	}
 
-	all, err := io.ReadAll(do.Body)
+	all, err := io.ReadAll(get.Body)
 	if err != nil {
 		panic(fmt.Errorf("ReadAll all failed: %v", err))
 	}
-	fmt.Printf("status code was [%v]\n", do.StatusCode)
+	fmt.Printf("status code was [%v]\n", get.StatusCode)
 	fmt.Printf("response is [%v]\n", string(all))
 }
 
