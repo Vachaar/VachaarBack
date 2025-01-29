@@ -16,9 +16,10 @@ from product.exceptions import (
 from product.models.item import Item
 from product.serializers.item_data_serializer import ItemDataSerializer
 from product.serializers.item_serializer import ItemWithImagesSerializer
-from product.services.item_creator import (
+from product.services.item_repository import (
     create_item_with_banners,
     edit_item_with_banners,
+    delete_item_with_banners,
 )
 from product.throttling import ItemThrottle
 from reusable.jwt import CookieJWTAuthentication
@@ -135,7 +136,7 @@ class ItemDetailView(APIView):
         except Item.DoesNotExist:
             raise ItemNotFoundException()
 
-        serializer = self.serializer_class(item)
+        serializer = self.serializer_class(item, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -171,6 +172,29 @@ class ItemEditView(APIView):
                     {"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ItemDeleteView(APIView):
+    """
+    View to delete a single item by ID.
+    """
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
+    throttle_classes = [ItemThrottle]
+
+    def delete(self, request, item_id):
+        try:
+            item = Item.objects.get(id=item_id)
+        except Item.DoesNotExist:
+            raise ItemNotFoundException()
+
+        if item.seller_user != request.user:
+            raise UnauthorizedEditItemRequest()
+
+        delete_item_with_banners(item_id)
+
+        return Response({"item_id": item_id}, status=status.HTTP_200_OK)
 
 
 class ItemSellerContactView(APIView):
