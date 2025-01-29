@@ -11,8 +11,9 @@ const (
 )
 
 func main() {
-	fmt.Println("script started")
-	request, err := http.NewRequest("GET", createUrl("product/items/1"), nil)
+	url := createUrl("product/items/1")
+	fmt.Println("script started,", url)
+	request, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		panic(fmt.Errorf("NewRequest failed: %v", err))
 	}
