@@ -40,9 +40,11 @@ class CreatePurchaseRequestAPIView(APIView):
                 comment=serializer.validated_data.get("comment"),
             )
 
-            return Response({
-                "request_id": purchase_request.id,
-                "buyer_user": purchase_request.buyer_user.sso_user_id},
+            return Response(
+                {
+                    "request_id": purchase_request.id,
+                    "buyer_user": purchase_request.buyer_user.sso_user_id,
+                },
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

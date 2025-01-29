@@ -16,6 +16,12 @@ class BaseReportAdmin(BaseAdmin):
     Base admin class for handling common report functionalities for reports.
     """
 
+    list_display = (
+        "id",
+        "status",
+        "total_reports",
+        "admin_note",
+    )
     list_filter = ("status",)
     readonly_fields = (
         "spam",
@@ -59,8 +65,7 @@ class BaseReportAdmin(BaseAdmin):
         for report in queryset:
             try:
                 with transaction.atomic():
-                    if not report.is_banned:
-                        report.ban()
+                    report.ban()
                     success_count += 1
             except Exception as e:
                 self.message_user(
@@ -80,8 +85,7 @@ class BaseReportAdmin(BaseAdmin):
         for report in queryset:
             try:
                 with transaction.atomic():
-                    if report.is_banned:
-                        report.unban()
+                    report.unban()
                     success_count += 1
             except Exception as e:
                 self.message_user(
@@ -105,7 +109,7 @@ class UserReportAdmin(BaseReportAdmin):
     Admin panel configuration for User Reports.
     """
 
-    list_display = ("user", "status", "total_reports", "admin_note")
+    list_display = BaseReportAdmin.list_display + ("user",)
     search_fields = ("user__email", "user__phone")
     actions = ["ban", "unban"]
 
@@ -116,12 +120,9 @@ class ItemReportAdmin(BaseReportAdmin):
     Admin panel configuration for Item Reports.
     """
 
-    list_display = (
+    list_display = BaseReportAdmin.list_display + (
         "link_to_item",
         "item",
-        "status",
-        "total_reports",
-        "admin_note",
     )
     search_fields = ("item__title",)
 
@@ -160,7 +161,9 @@ class ItemReportAdmin(BaseReportAdmin):
         """
         Provides a link to view the item on the website.
         """
-        item_url = escape(settings.BASE_URL.rstrip("/")) + "item/" + str(obj.item.id)
+        item_url = (
+            escape(settings.BASE_URL.rstrip("/")) + "item/" + str(obj.item.id)
+        )
         return format_html(
             '<a href="{}" target="_blank">View Item</a>', item_url
         )
@@ -173,8 +176,10 @@ class ItemReportAdmin(BaseReportAdmin):
         """
         for report in queryset:
             with transaction.atomic():
+                report.ban()
+
                 seller = report.item.seller_user
-                if seller and not seller.is_banned:
+                if seller:
                     seller.is_banned = True
                     seller.save()
                     seller.sold_items.update(is_banned=True)

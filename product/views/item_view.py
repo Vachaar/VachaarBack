@@ -43,7 +43,9 @@ class ItemListAllView(generics.ListAPIView):
     permission_classes = [AllowAny]
     throttle_classes = [ItemThrottle]
 
-    queryset = Item.objects.filter(is_banned=False)
+    queryset = Item.objects.filter(is_banned=False).exclude(
+        state__in=[Item.State.SOLD, Item.State.INACTIVE]
+    )
 
     # Add filters, search, and ordering
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -59,13 +61,14 @@ class ItemListAllView(generics.ListAPIView):
     ordering = ["-created_at"]  # Default ordering (newest first)
 
     def get(self, request, *args, **kwargs):
+        # Base queryset without price filters
+        base_queryset = self.get_queryset()
+
+        # Compute max price from the unfiltered queryset
+        max_price = base_queryset.aggregate(max_price=Max("price"))["max_price"]
+
         # Fetch the filtered queryset
         filtered_queryset = self.filter_queryset(self.get_queryset())
-
-        # Calculate the maximum price
-        max_price = filtered_queryset.aggregate(max_price=Max("price"))[
-            "max_price"
-        ]
 
         # Serialize the data
         page = self.paginate_queryset(filtered_queryset)
