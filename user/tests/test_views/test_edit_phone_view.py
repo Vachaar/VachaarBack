@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
-from rest_framework.test import APIClient, force_authenticate, APIRequestFactory
+from rest_framework.test import force_authenticate, APIRequestFactory
 
 from user.tests.factories.user_factory import UserFactory
 from user.views.profile_view import EditPhoneNumberView, ProfileView
@@ -14,7 +14,7 @@ class ProfileTests(TestCase):
             phone="09000000000",
         )
 
-    def test_get_profile(self):
+    def test_get_profile_successfully(self):
         # Arrange
         view = ProfileView.as_view()
         url = reverse("profile")
@@ -28,6 +28,19 @@ class ProfileTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["email"], "test@example.com")
         self.assertEqual(response.data["phone"], "09000000000")
+
+    def test_get_profile_unauthorized(self):
+        # Arrange
+        view = ProfileView.as_view()
+        url = reverse("profile")
+        request = APIRequestFactory().get(url, format="json")
+
+        # Act
+        response = view(request)
+
+        # Assert
+        self.assertEqual(response.status_code, 401)
+
 
 class EditPhoneNumberTests(TestCase):
     def setUp(self):
