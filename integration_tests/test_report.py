@@ -6,7 +6,8 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from product.tests.factories.category_factory import CategoryFactory
 from product.views.item_view import (
     ItemCreateView,
-    ItemListAllView, )
+    ItemListAllView,
+)
 from report.models.item_report import ItemReport
 from report.models.user_report import UserReport
 from report.views.report_view import ItemReportView, UserReportView
@@ -41,14 +42,13 @@ class ReportTests(TestCase):
         # item creation
         force_authenticate(self.create_item_request, user=self.seller_user)
         create_item_response = self.create_item_view(self.create_item_request)
-        self.assertEqual(create_item_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            create_item_response.status_code, status.HTTP_201_CREATED
+        )
         item_id = create_item_response.data["item_id"]
 
         # report item
-        report_payload = {
-            "item": item_id,
-            "reason_id": 1
-        }
+        report_payload = {"item": item_id, "reason_id": 1}
         report_url = reverse("create-item")
         report_item_request = self.factory.post(
             report_url, data=report_payload, format="json"
@@ -76,10 +76,7 @@ class ReportTests(TestCase):
 
     def test_report_and_ban_user(self):
         # report user
-        report_payload = {
-            "user": self.seller_user.sso_user_id,
-            "reason_id": 1
-        }
+        report_payload = {"user": self.seller_user.sso_user_id, "reason_id": 1}
 
         report_url = reverse("user-report")
         report_user_request = self.factory.post(
@@ -92,11 +89,18 @@ class ReportTests(TestCase):
         # create item
         force_authenticate(self.create_item_request, user=self.seller_user)
         create_item_response = self.create_item_view(self.create_item_request)
-        self.assertEqual(create_item_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            create_item_response.status_code, status.HTTP_201_CREATED
+        )
 
         # ban user
         UserReport.objects.first().ban()
-        self.assertEqual(User.objects.filter(sso_user_id= self.seller_user.sso_user_id).first().is_banned, True)
+        self.assertEqual(
+            User.objects.filter(sso_user_id=self.seller_user.sso_user_id)
+            .first()
+            .is_banned,
+            True,
+        )
 
         # get all items after ban user
         list_url = reverse("item-list-all")

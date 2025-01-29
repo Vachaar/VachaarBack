@@ -82,7 +82,8 @@ class EditPhoneSerializer(serializers.Serializer):
         user.save()
         return user
 
+
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'phone']
+        fields = ["email", "phone"]
