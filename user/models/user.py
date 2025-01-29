@@ -54,24 +54,7 @@ class User(AbstractUser):
         primary_key=True,
         db_index=True,
     )
-    email = models.EmailField(
-        unique=True,
-        null=False,
-        blank=False,
-        validators=[
-            UserValidator.email_validator,
-        ],
-    )
-    is_email_verified = models.BooleanField(default=False)
-    verification_code = models.CharField(
-        max_length=6,
-        blank=True,
-        null=True,
-    )
-    verification_code_expires_at = models.DateTimeField(
-        blank=True,
-        null=True,
-    )
+
     national_id: Optional[str] = models.CharField(
         max_length=10,
         validators=[
@@ -79,9 +62,10 @@ class User(AbstractUser):
         ],
         null=True,
         blank=True,
-        db_index=False,
+        db_index=True,
         verbose_name="National ID",
     )
+
     phone: str = models.CharField(
         max_length=11,
         validators=[
@@ -89,13 +73,41 @@ class User(AbstractUser):
         ],
         null=False,
         blank=False,
-        db_index=False,
+        db_index=True,
         verbose_name="Phone Number",
     )
+
     address: Optional[str] = models.TextField(
         null=True,
         blank=True,
         verbose_name="Address",
+    )
+
+    email = models.EmailField(
+        unique=True,
+        null=False,
+        blank=False,
+        db_index=True,
+        validators=[
+            UserValidator.email_validator,
+        ],
+    )
+
+    is_email_verified = models.BooleanField(default=False)
+
+    verification_code = models.CharField(
+        max_length=6,
+        blank=True,
+        null=True,
+    )
+
+    verification_code_expires_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    is_banned = models.BooleanField(
+        default=False,
     )
 
     objects = UserManager()

@@ -8,14 +8,20 @@ from product.tests.factories.banner_factory import BannerFactory
 from product.tests.factories.category_factory import CategoryFactory
 from product.tests.factories.image_factory import ImageFactory
 from product.tests.factories.item_factory import ItemFactory
-from product.views.item_view import ItemListView, ItemCreateView, ItemDetailView, ItemEditView
+from product.views.item_view import (
+    ItemCreateView,
+    ItemDetailView,
+    ItemEditView,
+    ItemListAllView,
+)
 from user.tests.factories.user_factory import UserFactory
 
 
 class ItemListAllViewTests(TestCase):
     def setUp(self):
+        self.list_url = reverse("item-list-all")
         self.factory = APIRequestFactory()
-        self.view = ItemListView.as_view()
+        self.view = ItemListAllView.as_view()
         self.user = UserFactory()
 
         self.category = CategoryFactory()
@@ -44,11 +50,13 @@ class ItemListAllViewTests(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["results"]), 2)
+        self.assertEqual(len(response.data["results"]["items"]), 2)
         self.assertEqual(
-            response.data["results"][0]["title"], self.item2.title
+            response.data["results"]["items"][0]["title"], self.item2.title
         )  # Default ordering
-        self.assertEqual(response.data["results"][1]["title"], self.item1.title)
+        self.assertEqual(
+            response.data["results"]["items"][1]["title"], self.item1.title
+        )
 
     def test_search_items_by_title(self):
         # Arrange
@@ -60,8 +68,10 @@ class ItemListAllViewTests(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["results"]), 1)
-        self.assertEqual(response.data["results"][0]["title"], self.item1.title)
+        self.assertEqual(len(response.data["results"]["items"]), 1)
+        self.assertEqual(
+            response.data["results"]["items"][0]["title"], self.item1.title
+        )
 
     def test_filter_items_by_category(self):
         # Arrange
@@ -89,8 +99,10 @@ class ItemListAllViewTests(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["results"]), 1)
-        self.assertEqual(response.data["results"][0]["title"], self.item1.title)
+        self.assertEqual(len(response.data["results"]["items"]), 1)
+        self.assertEqual(
+            response.data["results"]["items"][0]["title"], self.item1.title
+        )
 
     def test_order_items_by_price(self):
         # Arrange
@@ -102,9 +114,13 @@ class ItemListAllViewTests(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["results"]), 2)
-        self.assertEqual(response.data["results"][0]["title"], self.item1.title)
-        self.assertEqual(response.data["results"][1]["title"], self.item2.title)
+        self.assertEqual(len(response.data["results"]["items"]), 2)
+        self.assertEqual(
+            response.data["results"]["items"][0]["title"], self.item1.title
+        )
+        self.assertEqual(
+            response.data["results"]["items"][1]["title"], self.item2.title
+        )
 
 
 class TestItemCreateView(TestCase):
@@ -171,17 +187,19 @@ class ItemEditViewTests(TestCase):
             seller_user=self.seller_user,
             category=self.category1,
             price=101,
-            description="Test description"
+            description="Test description",
         )
         self.item1 = ItemFactory(
             title="Test Item 1",
             seller_user=self.seller_user,
             category=self.category1,
             price=101,
-            description="Test description"
+            description="Test description",
         )
         self.image1 = ImageFactory()
-        self.banner1 = BannerFactory(item=self.item1, image=self.image1, order=1)
+        self.banner1 = BannerFactory(
+            item=self.item1, image=self.image1, order=1
+        )
 
         self.valid_item_id = self.item1.id
         self.invalid_item_id = 99999
@@ -195,7 +213,9 @@ class ItemEditViewTests(TestCase):
             "banners": [{"image_id": self.image2.id, "order": 1}],
         }
         url = reverse("edit-item", kwargs={"item_id": self.valid_item_id})
-        self.edit_valid_item_request = self.factory.put(url, data=self.edit_payload, format="json")
+        self.edit_valid_item_request = self.factory.put(
+            url, data=self.edit_payload, format="json"
+        )
 
     def test_edit_valid_item(self):
         # Arrange
@@ -253,16 +273,6 @@ class ItemDetailViewTests(TestCase):
         )
         self.valid_item_id = self.item.id
         self.invalid_item_id = 99999
-
-    def test_retrieve_item_unauthenticated(self):
-        # Arrange
-        request = self.factory.get(
-            reverse("item-detail", kwargs={"item_id": self.valid_item_id})
-        )
-        # Act
-        response = self.view(request)
-        # Assert
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_retrieve_item_authenticated(self):
         # Arrange

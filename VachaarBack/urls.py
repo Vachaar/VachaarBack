@@ -25,6 +25,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("product/", include("product.urls")),
     path("usr/", include("user.urls")),
+    path("report/", include("report.urls")),
 ]
 
 if settings.SHOW_SWAGGER:

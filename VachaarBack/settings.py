@@ -30,13 +30,14 @@ CREDENTIALS_SECRET_KEY = env.str("CREDENTIALS_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1","localhost"])
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
 
 # Application definition
 
 INSTALLED_APPS = [
     "product",
     "user",
+    "report",
     "reusable",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -227,6 +228,7 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
 }
 
+BASE_URL = env.str("BASE_URL", default="http://127.0.0.1:80")
 ENVIRONMENT_NAME = env.str("ENVIRONMENT_NAME", default="Vachaar")
 SHOW_SWAGGER = env.bool("SHOW_SWAGGER", default=False)
 IMAGE_MAX_SIZE_MB = env("IMAGE_MAX_SIZE_MB", default=10)

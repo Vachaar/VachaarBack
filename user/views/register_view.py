@@ -13,7 +13,7 @@ from user.exceptions import (
 )
 from user.models.user import User
 from user.serializers.user_serializer import UserRegistrationSerializer
-from user.services.register_service import send_verification_email
+from user.services.register_email_service import send_verification_email
 from user.throttling import (
     RegisterThrottle,
     ResendVerificationEmailThrottle,

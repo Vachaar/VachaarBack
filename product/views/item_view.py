@@ -9,13 +9,20 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from product.exceptions import ItemNotFoundException, UnauthorizedEditItemRequest
+from product.exceptions import (
+    ItemNotFoundException,
+    UnauthorizedEditItemRequest,
+)
 from product.models.item import Item
 from product.serializers.item_data_serializer import ItemDataSerializer
 from product.serializers.item_serializer import ItemWithImagesSerializer
-from product.services.item_creator import create_item_with_banners, edit_item_with_banners
+from product.services.item_creator import (
+    create_item_with_banners,
+    edit_item_with_banners,
+)
 from product.throttling import ItemThrottle
 from reusable.jwt import CookieJWTAuthentication
+from user.services.permission import IsNotBannedUser
 
 
 class ItemPagination(PageNumberPagination):
@@ -35,7 +42,7 @@ class ItemListAllView(generics.ListAPIView):
     permission_classes = [AllowAny]
     throttle_classes = [ItemThrottle]
 
-    queryset = Item.objects.all()
+    queryset = Item.objects.filter(is_banned=False)
 
     # Add filters, search, and ordering
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -72,20 +79,6 @@ class ItemListAllView(generics.ListAPIView):
             return Response({"items": serializer.data, "max_price": max_price})
 
 
-class ItemListView(ItemListAllView):
-    """
-    View to list items for the logged-in user.
-    """
-
-    authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
-    throttle_classes = [ItemThrottle]
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.filter(seller_user=self.request.user)
-
-
 class ItemCreateView(APIView):
     """
     View to create an item along with its banners.
@@ -104,7 +97,7 @@ class ItemCreateView(APIView):
     """
 
     authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotBannedUser]
     throttle_classes = [ItemThrottle]
 
     def post(self, request):
@@ -151,7 +144,7 @@ class ItemEditView(APIView):
     View to retrieve a single item by ID.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotBannedUser]
     authentication_classes = [CookieJWTAuthentication]
     throttle_classes = [ItemThrottle]
 
@@ -168,9 +161,7 @@ class ItemEditView(APIView):
         if serializer.is_valid():
             try:
                 updated_item = edit_item_with_banners(
-                    item_id,
-                    serializer.validated_data,
-                    request.user
+                    item_id, serializer.validated_data, request.user
                 )
                 return Response(
                     {"item_id": updated_item.id}, status=status.HTTP_200_OK
@@ -186,6 +177,7 @@ class ItemSellerContactView(APIView):
     """
     View to retrieve contact information of the seller of a specific item.
     """
+
     permission_classes = [IsAuthenticated]
     authentication_classes = [CookieJWTAuthentication]
     throttle_classes = [ItemThrottle]
@@ -198,9 +190,6 @@ class ItemSellerContactView(APIView):
 
         seller = item.seller_user
 
-        seller_contact_info = {
-            "email": seller.email,
-            "phone": seller.phone
-        }
+        seller_contact_info = {"email": seller.email, "phone": seller.phone}
 
         return Response(seller_contact_info, status=status.HTTP_200_OK)

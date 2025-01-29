@@ -1,6 +1,9 @@
 from product.exceptions import ItemNotFoundException, InactiveItemException
 from product.exceptions import ItemWasNotReservedRequest
-from product.exceptions import UnauthorizedPurchaseActionRequest, PurchaseRequestNotFoundException
+from product.exceptions import (
+    UnauthorizedPurchaseActionRequest,
+    PurchaseRequestNotFoundException,
+)
 from product.models.item import Item
 from product.models.purchase_request import PurchaseRequest
 from product.services.banned_item_checker import check_item_banned

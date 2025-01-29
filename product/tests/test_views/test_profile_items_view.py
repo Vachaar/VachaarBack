@@ -56,83 +56,97 @@ class ProfileItemsAPIViewTests(TestCase):
 
     def test_filter_reserved_by_user(self):
         # Arrange
-        url = reverse('profile-item-list', kwargs={'filter_group': 'reserved_by_user'})
+        url = reverse(
+            "profile-item-list", kwargs={"filter_group": "reserved_by_user"}
+        )
         request = self.factory.get(url)
         force_authenticate(request, user=self.buyer_user)
 
         # Act
-        response = self.view(request, filter_group='reserved_by_user')
+        response = self.view(request, filter_group="reserved_by_user")
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['id'], self.reserved_item.id)
+        self.assertEqual(response.data[0]["id"], self.reserved_item.id)
 
     def test_filter_bought_by_user(self):
         # Arrange
-        url = reverse('profile-item-list', kwargs={'filter_group': 'bought_by_user'})
+        url = reverse(
+            "profile-item-list", kwargs={"filter_group": "bought_by_user"}
+        )
         request = self.factory.get(url)
         force_authenticate(request, user=self.buyer_user)
 
         # Act
-        response = self.view(request, filter_group='bought_by_user')
+        response = self.view(request, filter_group="bought_by_user")
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['id'], self.sold_item.id)
+        self.assertEqual(response.data[0]["id"], self.sold_item.id)
 
     def test_filter_sold_by_user(self):
         # Arrange
-        url = reverse('profile-item-list', kwargs={'filter_group': 'sold_by_user'})
+        url = reverse(
+            "profile-item-list", kwargs={"filter_group": "sold_by_user"}
+        )
         request = self.factory.get(url)
         force_authenticate(request, user=self.seller_user)
 
         # Act
-        response = self.view(request, filter_group='sold_by_user')
+        response = self.view(request, filter_group="sold_by_user")
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['id'], self.sold_item.id)
+        self.assertEqual(response.data[0]["id"], self.sold_item.id)
 
     def test_filter_created_by_user_active(self):
         # Arrange
-        url = reverse('profile-item-list', kwargs={'filter_group': 'created_by_user_active'})
+        url = reverse(
+            "profile-item-list",
+            kwargs={"filter_group": "created_by_user_active"},
+        )
         request = self.factory.get(url)
         force_authenticate(request, user=self.seller_user)
 
         # Act
-        response = self.view(request, filter_group='created_by_user_active')
+        response = self.view(request, filter_group="created_by_user_active")
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['id'], self.active_item.id)
+        self.assertEqual(response.data[0]["id"], self.active_item.id)
 
     def test_filter_created_by_user_reserved(self):
         # Arrange
-        url = reverse('profile-item-list', kwargs={'filter_group': 'created_by_user_reserved'})
+        url = reverse(
+            "profile-item-list",
+            kwargs={"filter_group": "created_by_user_reserved"},
+        )
         request = self.factory.get(url)
         force_authenticate(request, user=self.seller_user)
 
         # Act
-        response = self.view(request, filter_group='created_by_user_reserved')
+        response = self.view(request, filter_group="created_by_user_reserved")
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['id'], self.reserved_item.id)
+        self.assertEqual(response.data[0]["id"], self.reserved_item.id)
 
     def test_invalid_filter_group(self):
         # Arrange
-        url = reverse('profile-item-list', kwargs={'filter_group': 'invalid_filter'})
+        url = reverse(
+            "profile-item-list", kwargs={"filter_group": "invalid_filter"}
+        )
         request = self.factory.get(url)
         force_authenticate(request, user=self.buyer_user)
 
         # Act
-        response = self.view(request, filter_group='invalid_filter')
+        response = self.view(request, filter_group="invalid_filter")
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['code'], "invalid filter group.")
+        self.assertEqual(response.data["code"], "invalid filter group.")

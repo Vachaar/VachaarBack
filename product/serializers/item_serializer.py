@@ -15,6 +15,7 @@ class ItemWithImagesSerializer(serializers.ModelSerializer):
             "category",
             "price",
             "description",
+            "is_banned",
             "image_ids",
         ]
 

@@ -5,18 +5,25 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from product.tests.factories.category_factory import CategoryFactory
 from product.tests.factories.item_factory import ItemFactory
-from product.tests.factories.purchase_request_factory import PurchaseRequestFactory
-from product.views.purchase_request_view import CreatePurchaseRequestAPIView, GetPurchaseRequestsForItemView, \
-    GetBuyerUserPurchaseRequestView
+from product.tests.factories.purchase_request_factory import (
+    PurchaseRequestFactory,
+)
+from product.views.purchase_request_view import (
+    GetPurchaseRequestsForItemView,
+    GetBuyerUserPurchaseRequestView,
+)
 from user.tests.factories.user_factory import UserFactory
 
 
 class GetPurchaseRequestViewTests(TestCase):
-
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.get_purchase_for_seller_view = GetPurchaseRequestsForItemView.as_view()
-        self.get_purchase_for_buyer_view = GetBuyerUserPurchaseRequestView.as_view()
+        self.get_purchase_for_seller_view = (
+            GetPurchaseRequestsForItemView.as_view()
+        )
+        self.get_purchase_for_buyer_view = (
+            GetBuyerUserPurchaseRequestView.as_view()
+        )
 
         self.seller_user = UserFactory()
         self.buyer_user = UserFactory()
@@ -30,23 +37,31 @@ class GetPurchaseRequestViewTests(TestCase):
             description="Test description",
         )
 
-        self.purchase_request = (
-            PurchaseRequestFactory(item=self.item, buyer_user=self.buyer_user))
+        self.purchase_request = PurchaseRequestFactory(
+            item=self.item, buyer_user=self.buyer_user
+        )
 
-        url = reverse("get-buyer-user-purchase-request", kwargs={"item_id": self.item.id})
+        url = reverse(
+            "get-buyer-user-purchase-request", kwargs={"item_id": self.item.id}
+        )
         self.get_buyer_purchase_request = self.factory.get(url)
 
-        url = reverse("get-purchase-requests-for-item", kwargs={"item_id": self.item.id})
+        url = reverse(
+            "get-purchase-requests-for-item", kwargs={"item_id": self.item.id}
+        )
         self.get_seller_purchase_request = self.factory.get(url)
 
     def test_get_buyer_user_purchase_request_view_with_buyer_user(self):
         # Arrange
 
-        force_authenticate(self.get_buyer_purchase_request, user=self.buyer_user)
+        force_authenticate(
+            self.get_buyer_purchase_request, user=self.buyer_user
+        )
 
         # Act
         response = self.get_purchase_for_buyer_view(
-            self.get_buyer_purchase_request, item_id=self.item.id)
+            self.get_buyer_purchase_request, item_id=self.item.id
+        )
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -54,11 +69,14 @@ class GetPurchaseRequestViewTests(TestCase):
 
     def test_get_buyer_user_purchase_request_view_with_another_user(self):
         # Arrange
-        force_authenticate(self.get_buyer_purchase_request, user=self.seller_user)
+        force_authenticate(
+            self.get_buyer_purchase_request, user=self.seller_user
+        )
 
         # Act
         response = self.get_purchase_for_buyer_view(
-            self.get_buyer_purchase_request, item_id=self.item.id)
+            self.get_buyer_purchase_request, item_id=self.item.id
+        )
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -66,11 +84,14 @@ class GetPurchaseRequestViewTests(TestCase):
 
     def test_get_purchase_requests_for_item_view_with_seller_user(self):
         # Arrange
-        force_authenticate(self.get_seller_purchase_request, user=self.seller_user)
+        force_authenticate(
+            self.get_seller_purchase_request, user=self.seller_user
+        )
 
         # Act
         response = self.get_purchase_for_seller_view(
-            self.get_seller_purchase_request, item_id=self.item.id)
+            self.get_seller_purchase_request, item_id=self.item.id
+        )
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -80,11 +101,14 @@ class GetPurchaseRequestViewTests(TestCase):
     def test_get_purchase_requests_for_item_view_with_another_user_user(self):
         # Arrange
 
-        force_authenticate(self.get_seller_purchase_request, user=self.buyer_user)
+        force_authenticate(
+            self.get_seller_purchase_request, user=self.buyer_user
+        )
 
         # Act
         response = self.get_purchase_for_seller_view(
-            self.get_seller_purchase_request, item_id=self.item.id)
+            self.get_seller_purchase_request, item_id=self.item.id
+        )
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

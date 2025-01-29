@@ -24,11 +24,16 @@ class ProfileItemsAPIView(APIView):
             raise InvalidProfileItemsFilterGroup()
 
         filter_map = {
-            'reserved_by_user': Q(buyer_user=user, state=Item.State.RESERVED),
-            'bought_by_user': Q(buyer_user=user, state=Item.State.SOLD),
-            'sold_by_user': Q(seller_user=user, state=Item.State.SOLD),
-            'created_by_user_active': Q(seller_user=user, state=Item.State.ACTIVE),
-            'created_by_user_reserved': Q(seller_user=user, state=Item.State.RESERVED),
+            "reserved_by_user": Q(buyer_user=user, state=Item.State.RESERVED),
+            "bought_by_user": Q(buyer_user=user, state=Item.State.SOLD),
+            "sold_by_user": Q(seller_user=user, state=Item.State.SOLD),
+            "created_by_user_active": Q(
+                seller_user=user, state=Item.State.ACTIVE
+            ),
+            "created_by_user_reserved": Q(
+                seller_user=user, state=Item.State.RESERVED
+            ),
+            "banned": Q(seller_user=user, is_banned=True),
         }
 
         query_filter = filter_map.get(filter_group)

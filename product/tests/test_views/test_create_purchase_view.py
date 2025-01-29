@@ -11,7 +11,6 @@ from user.tests.factories.user_factory import UserFactory
 
 
 class CreatePurchaseRequestTests(TestCase):
-
     def setUp(self):
         self.factory = APIRequestFactory()
         self.create_view = CreatePurchaseRequestAPIView.as_view()
@@ -31,12 +30,9 @@ class CreatePurchaseRequestTests(TestCase):
 
     def test_create_purchase_with_existing_item(self):
         # Arrange
-        data = {
-            "item_id": self.item.id,
-            "comment": "I want to buy this item."
-        }
+        data = {"item_id": self.item.id, "comment": "I want to buy this item."}
 
-        request = self.factory.post(self.create_url, data, format='json')
+        request = self.factory.post(self.create_url, data, format="json")
         force_authenticate(request, user=self.buyer_user)
 
         # Act
@@ -51,11 +47,13 @@ class CreatePurchaseRequestTests(TestCase):
         # Arrange
         data = {
             "item_id": self.item.id + 1,
-            "comment": "I want to buy this item."
+            "comment": "I want to buy this item.",
         }
 
-        request = self.factory.post(self.create_url, data, format='json')
-        force_authenticate(request, user=self.buyer_user)  # Authenticate as buyer user
+        request = self.factory.post(self.create_url, data, format="json")
+        force_authenticate(
+            request, user=self.buyer_user
+        )  # Authenticate as buyer user
 
         # Act
         response = self.create_view(request)
