@@ -114,32 +114,32 @@ class ProductTests(TestCase):
             fetch_sold_items_request, filter_group="sold_by_user")
         self.assert_item_in_response(fetch_sold_items_response, item_id)
 
-    def test_create_and_edit_item_and_searching_item(self):
+    def test_create_and_searching_item(self):
         # items creation
         creation_payloads = [
             {
-                "title": "Test Item 1",
+                "title": "Test Item1 1",
                 "category": self.category.id,
                 "price": 50,
                 "description": "Test Description1",
                 "banners": [],
             },
             {
-                "title": "Test Item 2",
+                "title": "Test Item2 2",
                 "category": self.category.id,
                 "price": 100,
                 "description": "Test Description2",
                 "banners": [],
             },
             {
-                "title": "Test Item 3",
+                "title": "Test Item1 3",
                 "category": self.another_category.id,
                 "price": 10,
                 "description": "Test Description3",
                 "banners": [],
             },
             {
-                "title": "Test Item 4",
+                "title": "Test Item2 4",
                 "category": self.another_category.id,
                 "price": 110,
                 "description": "Test Description4",
@@ -155,7 +155,7 @@ class ProductTests(TestCase):
 
         # get all items
         search_request = self.factory.get(list_url)
-        force_authenticate(search_request, user=self.seller_user)
+        force_authenticate(search_request, user=self.buyer_user)
         search_response = search_view(search_request)
         self.assertEqual(search_response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(search_response.data["results"]["items"]), 4)
@@ -163,8 +163,8 @@ class ProductTests(TestCase):
         # search items by price and title
         search_view = ItemListAllView.as_view()
         list_url = reverse("item-list-all")
-        search_request = self.factory.get(f"{list_url}?search=Item&price__gte=100&price__lte=105&ordering=price")
-        force_authenticate(search_request, user=self.seller_user)
+        search_request = self.factory.get(f"{list_url}?search=Item&price__gte=100&price__lte=110&ordering=price")
+        force_authenticate(search_request, user=self.buyer_user)
         search_response = search_view(search_request)
 
         self.assertEqual(search_response.status_code, status.HTTP_200_OK)
@@ -172,10 +172,25 @@ class ProductTests(TestCase):
 
         result_items = search_response.data["results"]["items"]
         self.assertEqual(
-            result_items[0]["title"], "Test Item 3"
+            result_items[0]["title"], "Test Item2 2"
         )
         self.assertEqual(
-            result_items[1]["title"], "Test Item 4"
+            result_items[1]["title"], "Test Item2 4"
+        )
+
+        # search items by category and title
+        search_view = ItemListAllView.as_view()
+        list_url = reverse("item-list-all")
+        search_request = self.factory.get(f"{list_url}?search=Item1&category={self.category.id}&ordering=price")
+        force_authenticate(search_request, user=self.buyer_user)
+        search_response = search_view(search_request)
+
+        self.assertEqual(search_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(search_response.data["results"]["items"]), 1)
+
+        result_items = search_response.data["results"]["items"]
+        self.assertEqual(
+            result_items[0]["title"], "Test Item1 1"
         )
 
     def create_and_assert_items(self, creation_payloads):
@@ -186,12 +201,9 @@ class ProductTests(TestCase):
             force_authenticate(create_item_request, user=self.seller_user)
             create_item_response = self.create_item_view(create_item_request)
             self.assertEqual(create_item_response.status_code, status.HTTP_201_CREATED)
-            yield create_item_response.data["item_id"]
+
 
     def assert_item_in_response(self, response, item_id):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["id"], item_id)
-
-
-
