@@ -26,11 +26,7 @@ urlpatterns = [
     path("categories", CategoryListView.as_view(), name="category-list"),
     path("images/upload", ImageUploadView.as_view(), name="image-upload"),
     path("images/<int:image_id>", ImageRawView.as_view(), name="image-raw"),
-    path(
-        "items/contact-info/<int:item_id>/",
-        ItemSellerContactView.as_view(),
-        name="item-contact-info",
-    ),
+    path('items/contact-info/<int:item_id>', ItemSellerContactView.as_view(), name='item-contact-info'),
     path("items/create", ItemCreateView.as_view(), name="create-item"),
     path("items/edit/<int:item_id>", ItemEditView.as_view(), name="edit-item"),
     path(
