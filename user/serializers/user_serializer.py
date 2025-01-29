@@ -65,3 +65,19 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Add custom claims
         token["email"] = user.email
         return token
+
+
+class EditPhoneSerializer(serializers.Serializer):
+    phone = serializers.CharField()
+
+    def validate_phone(self, value):
+        try:
+            UserValidator.phone_validator(value)
+        except ValidationError:
+            raise PhoneIsNotValidException()
+        return value
+
+    def update(self, user, validated_data):
+        user.phone = validated_data["phone"]
+        user.save()
+        return user
