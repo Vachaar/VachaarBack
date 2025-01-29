@@ -1,4 +1,8 @@
-from product.exceptions import ItemNotFoundException, InactiveItemException
+from product.exceptions import (
+    ItemNotFoundException,
+    InactiveItemException,
+    PurchaseRequestAlreadyAcceptedException,
+)
 from product.exceptions import ItemWasNotReservedRequest
 from product.exceptions import (
     UnauthorizedPurchaseActionRequest,
@@ -21,6 +25,11 @@ def validate_accept_purchase_request(user, purchase_request_id):
 
     if item.seller_user != user:
         raise UnauthorizedPurchaseActionRequest()
+
+    if PurchaseRequest.objects.filter(
+        item=item, state=PurchaseRequest.State.ACCEPTED
+    ).exists():
+        raise PurchaseRequestAlreadyAcceptedException()
 
 
 def validate_sell_item_request(user, item):
