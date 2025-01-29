@@ -36,7 +36,7 @@ class ItemEditViewTests(TestCase):
             create_url, data=self.create_payload, format="json"
         )
 
-    def test_(self):
+    def test_create_item_and_purchase_request_then_reserve_and_selling_item(self):
         # item creation
         force_authenticate(self.create_item_request, user=self.seller_user)
         create_item_response = self.create_item_view(self.create_item_request)
