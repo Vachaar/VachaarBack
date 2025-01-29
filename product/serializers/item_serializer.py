@@ -14,6 +14,7 @@ class ItemWithImagesSerializer(serializers.ModelSerializer):
         model = Item
         fields = [
             "id",
+            "created_at",
             "title",
             "category",
             "price",
