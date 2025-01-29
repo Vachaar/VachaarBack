@@ -7,8 +7,7 @@ from report.serializers.base_report_serialzier import BaseReportSerializer
 
 
 class ItemReportSerializer(BaseReportSerializer):
-    item = serializers.PrimaryKeyRelatedField(
-        queryset=Item.objects.all(),
+    item = serializers.IntegerField(
         write_only=True,
         help_text="ID of the item being reported.",
     )
@@ -17,7 +16,7 @@ class ItemReportSerializer(BaseReportSerializer):
     report_class = ItemReport
 
     def validate_item(self, value):
-        if not Item.objects.filter(id=value.id).exists():
+        try:
+            return Item.objects.get(pk=value)
+        except Item.DoesNotExist:
             raise ItemDoesNotExist()
-
-        return value
