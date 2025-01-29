@@ -15,25 +15,27 @@ class BaseReportView(generics.CreateAPIView):
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated, IsNotBannedUser]
 
+    SUCCESS_MESSAGE = {"detail": "با موفقیت گزارش شد"}
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid()
-        report = serializer.save()
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
         return Response(
-            {"id": report.report_class.get_reported_instance.id},
-            status=status.HTTP_201_CREATED,
+            data=self.SUCCESS_MESSAGE,
+            status=status.HTTP_200_OK,
         )
 
 
-class UserReportView(generics.CreateAPIView):
+class UserReportView(BaseReportView):
     serializer_class = UserReportSerializer
     throttle_classes = [
         UserReportThrottle,
     ]
 
 
-class ItemReportView(generics.CreateAPIView):
+class ItemReportView(BaseReportView):
     serializer_class = ItemReportSerializer
     throttle_classes = [
         ItemReportThrottle,

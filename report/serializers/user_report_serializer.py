@@ -7,8 +7,7 @@ from user.models.user import User
 
 
 class UserReportSerializer(BaseReportSerializer):
-    user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
+    user = serializers.IntegerField(
         write_only=True,
         help_text="ID of the user being reported.",
     )
@@ -17,7 +16,7 @@ class UserReportSerializer(BaseReportSerializer):
     report_class = UserReport
 
     def validate_user(self, value):
-        if not User.objects.filter(id=value.id).exists():
+        try:
+            return User.objects.get(pk=value)
+        except User.DoesNotExist:
             raise UserDoesNotExist()
-
-        return value
