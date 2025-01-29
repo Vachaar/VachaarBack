@@ -7,7 +7,7 @@ from product.tests.factories.category_factory import CategoryFactory
 from product.views.item_status_view import MarkItemAsSoldAPIView
 from product.views.item_view import (
     ItemCreateView,
-    ItemDetailView,
+    ItemDetailView, ItemListAllView,
 )
 from product.views.profile_items_view import ProfileItemsAPIView
 from product.views.purchase_request_view import CreatePurchaseRequestAPIView, AcceptPurchaseRequestAPIView
@@ -21,25 +21,25 @@ class ProductTests(TestCase):
         self.seller_user = UserFactory()
         self.buyer_user = UserFactory()
         self.category = CategoryFactory()
+        self.another_category = CategoryFactory()
 
         self.create_item_view = ItemCreateView.as_view()
+        self.create_url = reverse("create-item")
 
-        self.create_payload = {
+    def test_create_item_and_purchase_request_then_reserve_and_selling_item(self):
+        # item creation
+        create_payload = {
             "title": "Test Item 1",
             "category": self.category.id,
             "price": 50.00,
             "description": "Test Description",
             "banners": [],
         }
-        create_url = reverse("create-item")
-        self.create_item_request = self.factory.post(
-            create_url, data=self.create_payload, format="json"
+        create_item_request = self.factory.post(
+            self.create_url, data=create_payload, format="json"
         )
-
-    def test_create_item_and_purchase_request_then_reserve_and_selling_item(self):
-        # item creation
-        force_authenticate(self.create_item_request, user=self.seller_user)
-        create_item_response = self.create_item_view(self.create_item_request)
+        force_authenticate(create_item_request, user=self.seller_user)
+        create_item_response = self.create_item_view(create_item_request)
         self.assertEqual(create_item_response.status_code, status.HTTP_201_CREATED)
         item_id = create_item_response.data["item_id"]
 
@@ -114,7 +114,84 @@ class ProductTests(TestCase):
             fetch_sold_items_request, filter_group="sold_by_user")
         self.assert_item_in_response(fetch_sold_items_response, item_id)
 
+    def test_create_and_edit_item_and_searching_item(self):
+        # items creation
+        creation_payloads = [
+            {
+                "title": "Test Item 1",
+                "category": self.category.id,
+                "price": 50,
+                "description": "Test Description1",
+                "banners": [],
+            },
+            {
+                "title": "Test Item 2",
+                "category": self.category.id,
+                "price": 100,
+                "description": "Test Description2",
+                "banners": [],
+            },
+            {
+                "title": "Test Item 3",
+                "category": self.another_category.id,
+                "price": 10,
+                "description": "Test Description3",
+                "banners": [],
+            },
+            {
+                "title": "Test Item 4",
+                "category": self.another_category.id,
+                "price": 110,
+                "description": "Test Description4",
+                "banners": [],
+            }
+        ]
+
+        self.create_and_assert_items(creation_payloads)
+
+        # search
+        list_url = reverse("item-list-all")
+        search_view = ItemListAllView.as_view()
+
+        # get all items
+        search_request = self.factory.get(list_url)
+        force_authenticate(search_request, user=self.seller_user)
+        search_response = search_view(search_request)
+        self.assertEqual(search_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(search_response.data["results"]["items"]), 4)
+
+        # search items by price and title
+        search_view = ItemListAllView.as_view()
+        list_url = reverse("item-list-all")
+        search_request = self.factory.get(f"{list_url}?search=Item&price__gte=100&price__lte=105&ordering=price")
+        force_authenticate(search_request, user=self.seller_user)
+        search_response = search_view(search_request)
+
+        self.assertEqual(search_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(search_response.data["results"]["items"]), 2)
+
+        result_items = search_response.data["results"]["items"]
+        self.assertEqual(
+            result_items[0]["title"], "Test Item 3"
+        )
+        self.assertEqual(
+            result_items[1]["title"], "Test Item 4"
+        )
+
+    def create_and_assert_items(self, creation_payloads):
+        for creation_payload in creation_payloads:
+            create_item_request = self.factory.post(
+                self.create_url, data=creation_payload, format="json"
+            )
+            force_authenticate(create_item_request, user=self.seller_user)
+            create_item_response = self.create_item_view(create_item_request)
+            self.assertEqual(create_item_response.status_code, status.HTTP_201_CREATED)
+            yield create_item_response.data["item_id"]
+
     def assert_item_in_response(self, response, item_id):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["id"], item_id)
+
+
+
