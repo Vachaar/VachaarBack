@@ -7,7 +7,6 @@ from user.views.edit_phone_view import EditPhoneNumberView
 
 
 class EditPhoneNumberTests(TestCase):
-
     def setUp(self):
         self.user = UserFactory(
             email="test@example.com",
@@ -19,12 +18,9 @@ class EditPhoneNumberTests(TestCase):
         # Arrange
         view = EditPhoneNumberView.as_view()
 
-        data = {
-            "phone": "09011111111"
-        }
+        data = {"phone": "09011111111"}
         url = reverse("edit-phone")
-        request = APIRequestFactory().post(
-            url, data=data, format="json")
+        request = APIRequestFactory().post(url, data=data, format="json")
 
         force_authenticate(request, user=self.user)
 
@@ -36,17 +32,13 @@ class EditPhoneNumberTests(TestCase):
         self.user.refresh_from_db()
         self.assertEqual(self.user.phone, "09011111111")
 
-
     def test_edit_phone_validation_error(self):
         # Arrange
         view = EditPhoneNumberView.as_view()
 
-        data = {
-            "phone": "0901111111"
-        }
+        data = {"phone": "0901111111"}
         url = reverse("edit-phone")
-        request = APIRequestFactory().post(
-            url, data=data, format="json")
+        request = APIRequestFactory().post(url, data=data, format="json")
 
         force_authenticate(request, user=self.user)
 

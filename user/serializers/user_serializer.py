@@ -66,6 +66,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["email"] = user.email
         return token
 
+
 class EditPhoneSerializer(serializers.Serializer):
     phone = serializers.CharField()
 
