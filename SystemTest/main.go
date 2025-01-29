@@ -68,21 +68,25 @@ func NewServiceClient() *ServiceClient {
 }
 
 func main() {
-
 	AddTwoUsersToDatabaseForTest()
 	client := NewServiceClient()
-
-	login, err := client.Login()
-	if err != nil {
-		panic(err)
+	var wg sync.WaitGroup
+	wg.Add(10)
+	for i := 0; i < 10; i++ {
+		go func() {
+			defer wg.Done()
+			items, err := client.GetAllItems()
+			if err != nil {
+				return
+			}
+			marshal, err := json.Marshal(items)
+			if err != nil {
+				return
+			}
+			fmt.Println(string(marshal))
+		}()
 	}
-	fmt.Println("user token is:", login)
-
-	item, err := client.getProductItem(1)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(item)
+	wg.Wait()
 
 }
 
