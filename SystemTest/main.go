@@ -14,7 +14,7 @@ import (
 
 const (
 	BaseUrl          = "http://0.0.0.0:8080"
-	testUserPassword = "password"
+	testUserPassword = "pbkdf2_sha256$870000$Og1pnRGWamttxNV36JE4F4$jWqSK4VFRAQ49T5ZNcE8eFSqCvBAPX8Lov/vkL/CbOg="
 	testUserEmail    = "mohamadkhalafi.82@gmail.com"
 )
 
