@@ -98,7 +98,7 @@ class ReportTests(TestCase):
         UserReport.objects.first().ban()
         self.assertEqual(User.objects.filter(sso_user_id= self.seller_user.sso_user_id).first().is_banned, True)
 
-        # get all items before ban
+        # get all items after ban user
         list_url = reverse("item-list-all")
         list_items_view = ItemListAllView.as_view()
         search_request = self.factory.get(list_url)
