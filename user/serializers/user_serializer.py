@@ -81,3 +81,8 @@ class EditPhoneSerializer(serializers.Serializer):
         user.phone = validated_data["phone"]
         user.save()
         return user
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'phone']

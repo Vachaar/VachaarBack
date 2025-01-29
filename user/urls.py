@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from user.views import register_view, login_view, stat_view
-from user.views.edit_phone_view import EditPhoneNumberView
+from user.views.profile_view import EditPhoneNumberView, ProfileView
 
 urlpatterns = [
     path(
@@ -39,5 +39,10 @@ urlpatterns = [
         "edit-phone",
         EditPhoneNumberView.as_view(),
         name="edit-phone",
+    ),
+    path(
+        "profile",
+        ProfileView.as_view(),
+        name="profile",
     ),
 ]
