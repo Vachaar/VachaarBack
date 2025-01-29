@@ -147,7 +147,7 @@ jobs:
 
       - name: Run server
         run: |
-          python manage.py runserver 0:8080
+          python manage.py runserver 0:8080 &
 
       - name: Set up Go
         uses: actions/setup-go@v4
