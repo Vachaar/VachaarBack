@@ -7,7 +7,7 @@ from product.tests.factories.category_factory import CategoryFactory
 from product.views.item_status_view import MarkItemAsSoldAPIView
 from product.views.item_view import (
     ItemCreateView,
-    ItemDetailView, ItemListAllView,
+    ItemDetailView, ItemListAllView, ItemEditView, ItemDeleteView,
 )
 from product.views.profile_items_view import ProfileItemsAPIView
 from product.views.purchase_request_view import CreatePurchaseRequestAPIView, AcceptPurchaseRequestAPIView
@@ -193,6 +193,68 @@ class ProductTests(TestCase):
             result_items[0]["title"], "Test Item1 1"
         )
 
+    def test_unauthorized_actions_for_buyer_user(self):
+        # item creation
+        create_payload = {
+            "title": "Test Item 1",
+            "category": self.category.id,
+            "price": 50.00,
+            "description": "Test Description",
+            "banners": [],
+        }
+        create_item_request = self.factory.post(
+            self.create_url, data=create_payload, format="json"
+        )
+        force_authenticate(create_item_request, user=self.seller_user)
+        create_item_response = self.create_item_view(create_item_request)
+        self.assertEqual(create_item_response.status_code, status.HTTP_201_CREATED)
+        item_id = create_item_response.data["item_id"]
+
+        # create purchase request
+        create_purchase_url = reverse("create-purchase-request")
+        data = {"item_id": item_id, "comment": "I want to buy this item."}
+        create_purchase_request = self.factory.post(create_purchase_url, data, format="json")
+        force_authenticate(create_purchase_request, user=self.buyer_user)
+        create_purchase_response = CreatePurchaseRequestAPIView.as_view()(create_purchase_request)
+        self.assertEqual(create_purchase_response.status_code, status.HTTP_201_CREATED)
+        purchase_request_id = create_purchase_response.data["request_id"]
+
+        # accept purchase request unauthorized
+        accept_purchase_url = reverse(
+            "accept-purchase-request",
+            kwargs={"purchase_request_id": purchase_request_id}
+        )
+        accept_purchase_request = self.factory.post(accept_purchase_url, {}, format="json")
+        force_authenticate(accept_purchase_request, user=self.buyer_user)
+        accept_purchase_response = AcceptPurchaseRequestAPIView.as_view()(
+            accept_purchase_request, purchase_request_id=purchase_request_id)
+        self.assertEqual(accept_purchase_response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # edit item unauthorized
+        edit_payload = {
+            "title": "Test Item 2",
+            "category": self.category.id,
+            "price": 50.00,
+            "description": "Test Description",
+            "banners": [],
+        }
+        edit_url = reverse("edit-item", kwargs={"item_id": item_id})
+        edit_item_request = self.factory.put(
+            edit_url, data=edit_payload, format="json"
+        )
+        force_authenticate(edit_item_request, user=self.buyer_user)
+        edit_response = ItemEditView.as_view()(edit_item_request, item_id)
+        self.assertEqual(edit_response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # delete item unauthorized
+        delete_url = reverse("delete-item", kwargs={"item_id": item_id})
+        delete_item_request = self.factory.delete(delete_url, format="json")
+        force_authenticate(
+            delete_item_request, user=self.buyer_user
+        )
+        delete_response = ItemDeleteView.as_view()(delete_item_request, item_id)
+        self.assertEqual(delete_response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def create_and_assert_items(self, creation_payloads):
         for creation_payload in creation_payloads:
             create_item_request = self.factory.post(
@@ -201,7 +263,6 @@ class ProductTests(TestCase):
             force_authenticate(create_item_request, user=self.seller_user)
             create_item_response = self.create_item_view(create_item_request)
             self.assertEqual(create_item_response.status_code, status.HTTP_201_CREATED)
-
 
     def assert_item_in_response(self, response, item_id):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
