@@ -4,8 +4,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from reusable.jwt import CookieJWTAuthentication
-from user.serializers.user_serializer import EditPhoneSerializer
+from user.serializers.user_serializer import EditPhoneSerializer, ProfileSerializer
 
+
+class ProfileView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = ProfileSerializer(request.user)
+        return Response(serializer.data)
 
 class EditPhoneNumberView(APIView):
     authentication_classes = [CookieJWTAuthentication]
