@@ -9,18 +9,19 @@ from product.tests.factories.category_factory import CategoryFactory
 from product.tests.factories.image_factory import ImageFactory
 from product.tests.factories.item_factory import ItemFactory
 from product.views.item_view import (
-    ItemListView,
     ItemCreateView,
     ItemDetailView,
     ItemEditView,
+    ItemListAllView,
 )
 from user.tests.factories.user_factory import UserFactory
 
 
 class ItemListAllViewTests(TestCase):
     def setUp(self):
+        self.list_url = reverse("item-list-all")
         self.factory = APIRequestFactory()
-        self.view = ItemListView.as_view()
+        self.view = ItemListAllView.as_view()
         self.user = UserFactory()
 
         self.category = CategoryFactory()

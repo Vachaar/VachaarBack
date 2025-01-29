@@ -82,16 +82,6 @@ class BaseReport(BaseModel):
     def notify_ban(self):
         raise NotImplementedError("Should be implemented in the child class.")
 
-    def inc(self, reason: ReportReason) -> None:
-        """
-        Increment the count for the specified report reason.
-        """
-        field_name = REASON_FIELD_MAP.get(reason)
-        if not field_name:
-            raise ValueError(f"Invalid report reason: {reason}")
-        setattr(self, field_name, getattr(self, field_name) + 1)
-        self.save()
-
     def _validate_reported_instance(self):
         """
         Validate that the reported instance exists and has the required attribute.

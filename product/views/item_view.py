@@ -79,20 +79,6 @@ class ItemListAllView(generics.ListAPIView):
             return Response({"items": serializer.data, "max_price": max_price})
 
 
-class ItemListView(ItemListAllView):
-    """
-    View to list items for the logged-in user.
-    """
-
-    authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
-    throttle_classes = [ItemThrottle]
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.filter(seller_user=self.request.user)
-
-
 class ItemCreateView(APIView):
     """
     View to create an item along with its banners.

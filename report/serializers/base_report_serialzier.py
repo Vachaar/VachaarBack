@@ -1,7 +1,8 @@
+from django.db.models import F
 from rest_framework import serializers
 
 from report.exceptions import ReasonIsNotValid
-from report.models.base_report import ReportReason
+from report.models.base_report import ReportReason, REASON_FIELD_MAP
 
 REASON_MAPPING = {
     1: ReportReason.FRAUD,
@@ -49,10 +50,15 @@ class BaseReportSerializer(serializers.Serializer):
         reported_instance = validated_data[self.reported_field]
         reason = validated_data["reason_id"]
 
+        field_name = REASON_FIELD_MAP.get(reason)
+        if not field_name:
+            raise ValueError(f"Invalid report reason: {reason}")
+
         report, created = self.report_class.objects.get_or_create(
             **{self.reported_field: reported_instance},
         )
 
-        # Increment the specific report field
-        report.inc(reason=reason)
+        setattr(report, field_name, F(field_name) + 1)
+        report.save()
+        report.refresh_from_db()
         return report

@@ -55,14 +55,46 @@ class BaseReportAdmin(BaseAdmin):
     total_reports.short_description = "Total Reports"
 
     def ban(self, request, queryset):
+        success_count = 0
         for report in queryset:
-            report.ban()
-        self.message_user(request, "Selected reports have been banned.")
+            try:
+                with transaction.atomic():
+                    if not report.is_banned:
+                        report.ban()
+                    success_count += 1
+            except Exception as e:
+                self.message_user(
+                    request,
+                    f"Failed to ban report {report.id}: {str(e)}",
+                    level="ERROR",
+                )
+
+        if success_count:
+            self.message_user(
+                request,
+                f"{success_count} reports have been banned successfully.",
+            )
 
     def unban(self, request, queryset):
+        success_count = 0
         for report in queryset:
-            report.unban()
-        self.message_user(request, "Selected reports have been unbanned.")
+            try:
+                with transaction.atomic():
+                    if report.is_banned:
+                        report.unban()
+                    success_count += 1
+            except Exception as e:
+                self.message_user(
+                    request,
+                    f"Failed to unban report {report.id}: {str(e)}",
+                    level="ERROR",
+                )
+
+        if success_count:
+            self.message_user(
+                request,
+                f"{success_count} reports have been unbanned successfully.",
+            )
 
     actions = ["ban", "unban"]
 
