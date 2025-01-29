@@ -14,7 +14,7 @@ from product.views.purchase_request_view import CreatePurchaseRequestAPIView, Ac
 from user.tests.factories.user_factory import UserFactory
 
 
-class ItemEditViewTests(TestCase):
+class ProductTests(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
 
