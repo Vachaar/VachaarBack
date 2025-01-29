@@ -89,11 +89,19 @@ class ReportTests(TestCase):
         report_user_response = UserReportView.as_view()(report_user_request)
         self.assertEqual(report_user_response.status_code, status.HTTP_200_OK)
 
+        # create item
+        force_authenticate(self.create_item_request, user=self.seller_user)
+        create_item_response = self.create_item_view(self.create_item_request)
+        self.assertEqual(create_item_response.status_code, status.HTTP_201_CREATED)
+
         # ban user
         UserReport.objects.first().ban()
         self.assertEqual(User.objects.filter(sso_user_id= self.seller_user.sso_user_id).first().is_banned, True)
 
-        # create item
-        force_authenticate(self.create_item_request, user=self.seller_user)
-        create_item_response = self.create_item_view(self.create_item_request)
-        self.assertEqual(create_item_response.status_code, status.HTTP_400_BAD_REQUEST)
+        # get all items before ban
+        list_url = reverse("item-list-all")
+        list_items_view = ItemListAllView.as_view()
+        search_request = self.factory.get(list_url)
+        force_authenticate(search_request, user=self.buyer_user)
+        search_response = list_items_view(search_request)
+        self.assertEqual(len(search_response.data["results"]["items"]), 0)
