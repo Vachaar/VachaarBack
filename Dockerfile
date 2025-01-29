@@ -14,4 +14,4 @@ ENV PYTHONUNBUFFERED 1
 
 EXPOSE 80
 
-CMD ["sh", "-c", "python manage.py migrate"]
+CMD ["sh", "-c", "python manage.py runserver 0.0.0.0:80"]
