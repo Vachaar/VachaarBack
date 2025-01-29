@@ -6,6 +6,7 @@ from product.models.item import Item
 
 class ItemWithImagesSerializer(serializers.ModelSerializer):
     image_ids = serializers.SerializerMethodField()
+    is_owner = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Item
@@ -17,6 +18,7 @@ class ItemWithImagesSerializer(serializers.ModelSerializer):
             "description",
             "is_banned",
             "image_ids",
+            "is_owner",
         ]
 
     def get_image_ids(self, obj):
@@ -26,3 +28,8 @@ class ItemWithImagesSerializer(serializers.ModelSerializer):
             .order_by("order")
             .values_list("image_id", flat=True)
         )
+
+    def get_is_owner(self, obj):
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        return obj.seller_user == user

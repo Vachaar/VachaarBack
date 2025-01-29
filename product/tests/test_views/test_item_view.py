@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from product.models.banner import Banner
+from product.models.image import Image
+from product.models.item import Item
 from product.tests.factories.banner_factory import BannerFactory
 from product.tests.factories.category_factory import CategoryFactory
 from product.tests.factories.image_factory import ImageFactory
@@ -13,6 +15,7 @@ from product.views.item_view import (
     ItemDetailView,
     ItemEditView,
     ItemListAllView,
+    ItemDeleteView,
 )
 from user.tests.factories.user_factory import UserFactory
 
@@ -196,21 +199,19 @@ class ItemEditViewTests(TestCase):
             description="Test description",
         )
         self.image1 = ImageFactory()
-        self.banner1 = BannerFactory(
-            item=self.item1, image=self.image1, order=1
-        )
+        self.image2 = ImageFactory()
 
         self.valid_item_id = self.item_to_edit.id
         self.invalid_item_id = 99999
 
-        self.image2 = ImageFactory()
         self.edit_payload = {
             "title": "Test Item 2",
-            "category": self.category1.id,
+            "category": self.category.id,
             "price": 50.00,
             "description": "Test Description",
             "banners": [{"image_id": self.image2.id, "order": 1}],
         }
+
         url = reverse("edit-item", kwargs={"item_id": self.valid_item_id})
         self.edit_valid_item_request = self.factory.put(
             url, data=self.edit_payload, format="json"
@@ -272,31 +273,39 @@ class ItemDeleteViewTests(TestCase):
             seller_user=self.seller_user,
             category=self.category,
             price=101,
-            description="Test description"
+            description="Test description",
         )
         self.some_item = ItemFactory(
             title="Test Item 1",
             seller_user=self.seller_user,
             category=self.category,
             price=101,
-            description="Test description"
+            description="Test description",
         )
 
         self.image1 = ImageFactory()
-        self.banner1 = BannerFactory(item=self.item_to_delete, image=self.image1, order=1)
+        self.banner1 = BannerFactory(
+            item=self.item_to_delete, image=self.image1, order=1
+        )
 
         self.image2 = ImageFactory()
-        self.banner2 = BannerFactory(item=self.some_item, image=self.image2, order=1)
+        self.banner2 = BannerFactory(
+            item=self.some_item, image=self.image2, order=1
+        )
 
         url = reverse("delete-item", kwargs={"item_id": self.item_to_delete.id})
         self.delete_valid_item_request = self.factory.delete(url, format="json")
 
     def test_delete_valid_item(self):
         # Arrange
-        force_authenticate(self.delete_valid_item_request, user=self.seller_user)
+        force_authenticate(
+            self.delete_valid_item_request, user=self.seller_user
+        )
 
         # Act
-        response = self.view(self.delete_valid_item_request, self.item_to_delete.id)
+        response = self.view(
+            self.delete_valid_item_request, self.item_to_delete.id
+        )
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -311,10 +320,14 @@ class ItemDeleteViewTests(TestCase):
 
     def test_delete_item_unauthenticated(self):
         # Arrange
-        force_authenticate(self.delete_valid_item_request, user=self.another_user)
+        force_authenticate(
+            self.delete_valid_item_request, user=self.another_user
+        )
 
         # Act
-        response = self.view(self.delete_valid_item_request, self.item_to_delete.id)
+        response = self.view(
+            self.delete_valid_item_request, self.item_to_delete.id
+        )
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

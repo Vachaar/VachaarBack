@@ -11,19 +11,19 @@ from product.models.item import Item
 
 def delete_item_with_banners(item_id):
     """
-      Service to delete an existing item along with its banners.
+    Service to delete an existing item along with its banners.
 
-      Args:
-          item_id: The id of the item to delete.
+    Args:
+        item_id: The id of the item to delete.
 
-      Returns:
-          Item: The deleted item id.
+    Returns:
+        Item: The deleted item id.
 
-      Note:
-          Uses database transaction to ensure atomicity. If any operation fails,
-          all changes will be rolled back. This includes removing item
-          before removing the banners.
-      """
+    Note:
+        Uses database transaction to ensure atomicity. If any operation fails,
+        all changes will be rolled back. This includes removing item
+        before removing the banners.
+    """
     with transaction.atomic():
         item = Item.objects.get(id=item_id)
         banners = Banner.objects.filter(item=item)
@@ -33,6 +33,7 @@ def delete_item_with_banners(item_id):
         for image in images:
             image.delete()
         item.delete()
+
 
 def edit_item_with_banners(item_id, data, seller_user):
     """

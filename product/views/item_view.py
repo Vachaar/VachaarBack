@@ -16,7 +16,11 @@ from product.exceptions import (
 from product.models.item import Item
 from product.serializers.item_data_serializer import ItemDataSerializer
 from product.serializers.item_serializer import ItemWithImagesSerializer
-from product.services.item_repository import create_item_with_banners, edit_item_with_banners, delete_item_with_banners
+from product.services.item_repository import (
+    create_item_with_banners,
+    edit_item_with_banners,
+    delete_item_with_banners,
+)
 from product.throttling import ItemThrottle
 from reusable.jwt import CookieJWTAuthentication
 from user.services.permission import IsNotBannedUser
@@ -132,7 +136,7 @@ class ItemDetailView(APIView):
         except Item.DoesNotExist:
             raise ItemNotFoundException()
 
-        serializer = self.serializer_class(item)
+        serializer = self.serializer_class(item, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -190,9 +194,7 @@ class ItemDeleteView(APIView):
 
         delete_item_with_banners(item_id)
 
-        return Response(
-            {"item_id": item_id}, status=status.HTTP_200_OK
-        )
+        return Response({"item_id": item_id}, status=status.HTTP_200_OK)
 
 
 class ItemSellerContactView(APIView):
@@ -212,9 +214,6 @@ class ItemSellerContactView(APIView):
 
         seller = item.seller_user
 
-        seller_contact_info = {
-            "email": seller.email,
-            "phone": seller.phone
-        }
+        seller_contact_info = {"email": seller.email, "phone": seller.phone}
 
         return Response(seller_contact_info, status=status.HTTP_200_OK)
