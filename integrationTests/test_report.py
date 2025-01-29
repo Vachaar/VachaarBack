@@ -74,7 +74,7 @@ class ReportTests(TestCase):
         search_response = list_items_view(search_request)
         self.assertEqual(len(search_response.data["results"]["items"]), 0)
 
-    def test_report_and_ban_user_then_create_item(self):
+    def test_report_and_ban_user(self):
         # report user
         report_payload = {
             "user": self.seller_user.sso_user_id,
