@@ -14,7 +14,8 @@ import (
 
 const (
 	BaseUrl          = "http://0.0.0.0:8080"
-	testUserPassword = "pbkdf2_sha256$870000$Og1pnRGWamttxNV36JE4F4$jWqSK4VFRAQ49T5ZNcE8eFSqCvBAPX8Lov/vkL/CbOg="
+	databasePassword = "pbkdf2_sha256$870000$CkB2Fb1DEWX2DnlcziFS2U$RsOjB+9W7wNEwNqoMSgj/Tp1M5aeSwyZgvCWeUFe5OU="
+	testUserPassword = "ALiAhmad100%"
 	testUserEmail    = "mohamadkhalafi.82@gmail.com"
 )
 
@@ -91,7 +92,7 @@ func AddTwoUsersToDatabaseForTest() {
 		panic(err)
 	}
 	defer open.Close()
-	_, err = open.Exec("INSERT INTO public.user_user(password, last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined, national_id, phone, address, is_email_verified, verification_code, verification_code_expires_at, sso_user_id, is_banned)\n  VALUES ($1, null, false, $2, '','', $2, false, true, NOW() , null, '09373668000', null, true, null, null, 1, false)", testUserPassword, testUserEmail)
+	_, err = open.Exec("INSERT INTO public.user_user(password, last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined, national_id, phone, address, is_email_verified, verification_code, verification_code_expires_at, sso_user_id, is_banned)\n  VALUES ($1, null, false, $2, '','', $2, false, true, NOW() , null, '09373668000', null, true, null, null, 1, false)", databasePassword, testUserEmail)
 	if err != nil {
 		panic(err)
 	}
