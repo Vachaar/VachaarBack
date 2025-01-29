@@ -79,3 +79,11 @@ jobs:
       - name: Run tests
         run: |
           python manage.py test
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Run Go script
+        run: go run path/to/your_script.go
