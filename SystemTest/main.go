@@ -179,6 +179,8 @@ func (s *ServiceClient) GetAllItems() (*GetAllItemsResponse, error) {
 	var result GetAllItemsResponse
 	err = json.Unmarshal(all, &result)
 	if err != nil {
+		log.Println("Unmarshal failed:", err)
+		log.Println("body was:", string(all))
 		return nil, err
 	}
 	fmt.Printf("response is [%v]\n", string(all))
