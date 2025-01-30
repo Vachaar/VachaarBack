@@ -74,7 +74,6 @@ func main() {
 	login, err := client.Login()
 	if err != nil {
 		log.Println("Login failed:", err)
-		return
 	}
 	log.Println("Token:", login)
 	var wg sync.WaitGroup
