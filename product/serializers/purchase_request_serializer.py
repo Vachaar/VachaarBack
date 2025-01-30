@@ -8,7 +8,10 @@ class PurchaseRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PurchaseRequest
-        fields = ["id", "buyer_user_phone", "comment", "state"]
+        fields = ["id", "buyer_user_phone", "buyer_user_id", "comment", "state"]
 
     def get_buyer_user_phone(self, obj):
         return obj.buyer_user.phone if obj.buyer_user else None
+
+    def get_buyer_user_id(self, obj):
+        return obj.buyer_user.sso_user_id if obj.buyer_user else None

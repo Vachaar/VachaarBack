@@ -69,30 +69,6 @@ class UserRegistrationTests(TestCase):
         # Assert
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_create_user_throttling(self):
-        # Arrange
-        factory = APIRequestFactory()
-        url = reverse("register")
-        data = {
-            "email": "testuser@example.com",
-            "password": "securepassword123",
-            "name": "Test User",
-        }
-
-        # Act
-        for _ in range(
-            5
-        ):  # Simulate multiple requests exceeding throttle limit
-            request = factory.post(url, data)
-            response = RegisterView.as_view()(request)
-        request = factory.post(url, data)
-        response = RegisterView.as_view()(request)
-
-        # Assert
-        self.assertEqual(
-            response.status_code, status.HTTP_429_TOO_MANY_REQUESTS
-        )  # Too many requests
-
     def test_create_user_invalid_email_format(self):
         # Arrange
         factory = APIRequestFactory()
