@@ -174,6 +174,8 @@ func (s *ServiceClient) GetAllItems() (*GetAllItemsResponse, error) {
 
 	if get.StatusCode != http.StatusOK {
 		fmt.Printf("status code was [%v]\n", get.StatusCode)
+		log.Println("body was:", string(all))
+		panic("djsclds")
 		return nil, fmt.Errorf("status code was [%v]", get.StatusCode)
 	}
 	var result GetAllItemsResponse
