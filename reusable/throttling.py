@@ -7,8 +7,8 @@ from rest_framework.throttling import BaseThrottle
 class BaseCustomThrottle(BaseThrottle):
     scope = None
     rate = None
-    num_requests = 5
-    duration = 2 * 60
+    num_requests = 100
+    duration = 60
 
     CACHE_KEY_PREFIX = "throttle"  # Added for cache key clarity
 
