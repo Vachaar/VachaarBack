@@ -214,8 +214,15 @@ func (s *ServiceClient) Login() (string, error) {
 	}
 	fmt.Println("cookies response is ", string(all))
 
+	defer get.Body.Close()
+	readAll, err := io.ReadAll(get.Body)
+	if err != nil {
+		return "", err
+	}
+
 	if get.StatusCode != http.StatusOK {
 		fmt.Printf("status code was [%v]\n", get.StatusCode)
+		fmt.Println("body was:", string(readAll))
 		return "", fmt.Errorf("status code was [%v]", get.StatusCode)
 	}
 	if len(get.Cookies()) == 0 {
