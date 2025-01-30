@@ -81,13 +81,16 @@ func main() {
 	wg.Add(10)
 	for i := 0; i < 10; i++ {
 		go func() {
+			var err error
 			defer wg.Done()
 			items, err := client.GetAllItems()
 			if err != nil {
+				log.Println("GetAllItems failed:", err)
 				return
 			}
 			marshal, err := json.Marshal(items)
 			if err != nil {
+				log.Println("Marshal failed:", err)
 				return
 			}
 			fmt.Println(string(marshal))
