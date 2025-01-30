@@ -204,6 +204,10 @@ func (s *ServiceClient) Login() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	newRequest.Header.Set("Content-Type", "application/json")
+	fmt.Println(newRequest.Host)
+	fmt.Println(newRequest.Header.Get("Host"))
+
 	get, err := s.c.Do(newRequest)
 	if err != nil {
 		return "", err
