@@ -205,8 +205,10 @@ func (s *ServiceClient) Login() (string, error) {
 		return "", err
 	}
 	newRequest.Header.Set("Content-Type", "application/json")
-	fmt.Println(newRequest.Host)
-	fmt.Println(newRequest.Header.Get("Host"))
+	newRequest.Header.Set("Host", "localhost")
+
+	fmt.Println("inja1", newRequest.Header.Get("Host"))
+	fmt.Println("inja2", newRequest.Header.Get("Content-Type"))
 
 	get, err := s.c.Do(newRequest)
 	if err != nil {
