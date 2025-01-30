@@ -8,6 +8,7 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"io"
+	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -19,7 +20,6 @@ const (
 	testUserPassword = "ALiAhmad100%"
 	testUserEmail    = "mohamadkhalafi.82@gmail.com"
 )
-
 
 type Item struct {
 	Id          int    `json:"id"`
@@ -71,6 +71,12 @@ func NewServiceClient() *ServiceClient {
 func main() {
 	AddTwoUsersToDatabaseForTest()
 	client := NewServiceClient()
+	login, err := client.Login()
+	if err != nil {
+		log.Println("Login failed:", err)
+		return
+	}
+	log.Println("Token:", login)
 	var wg sync.WaitGroup
 	wg.Add(10)
 	for i := 0; i < 10; i++ {
