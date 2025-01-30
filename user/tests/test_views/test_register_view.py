@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient
+from rest_framework.test import APIRequestFactory
 
 from user.exceptions import EmailIsNotValidException
 from user.models.user import User
@@ -12,7 +12,7 @@ from user.views.register_view import RegisterView
 class UserRegistrationTests(TestCase):
     def test_create_user_success(self):
         # Arrange
-        client = APIClient()
+        factory = APIRequestFactory()
         url = reverse(
             "register"
         )  # Adjust the URL name as per your route configuration
@@ -23,32 +23,34 @@ class UserRegistrationTests(TestCase):
         }
 
         # Act
-        response = client.post(url, data)
+        request = factory.post(url, data)
+        response = RegisterView.as_view()(request)
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
-            response.json()["detail"],
+            response.data["detail"],
             RegisterView.SUCCESS_MESSAGE.get("detail"),
         )
         self.assertTrue(User.objects.filter(email=data["email"]).exists())
 
     def test_create_user_missing_email(self):
         # Arrange
-        client = APIClient()
+        factory = APIRequestFactory()
         url = reverse("register")
         data = {"password": "securepassword123", "name": "Test User"}
 
         # Act
-        response = client.post(url, data)
+        request = factory.post(url, data)
+        response = RegisterView.as_view()(request)
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("email", response.json())
+        self.assertIn("email", response.data)
 
     def test_create_user_email_already_exists(self):
         # Arrange
-        client = APIClient()
+        factory = APIRequestFactory()
         url = reverse("register")
         existing_email = "testuser@example.com"
         password = "securepassword123"
@@ -61,14 +63,15 @@ class UserRegistrationTests(TestCase):
         }
 
         # Act
-        response = client.post(url, data)
+        request = factory.post(url, data)
+        response = RegisterView.as_view()(request)
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_user_throttling(self):
         # Arrange
-        client = APIClient()
+        factory = APIRequestFactory()
         url = reverse("register")
         data = {
             "email": "testuser@example.com",
@@ -80,8 +83,10 @@ class UserRegistrationTests(TestCase):
         for _ in range(
             5
         ):  # Simulate multiple requests exceeding throttle limit
-            client.post(url, data)
-        response = client.post(url, data)
+            request = factory.post(url, data)
+            response = RegisterView.as_view()(request)
+        request = factory.post(url, data)
+        response = RegisterView.as_view()(request)
 
         # Assert
         self.assertEqual(
@@ -90,7 +95,7 @@ class UserRegistrationTests(TestCase):
 
     def test_create_user_invalid_email_format(self):
         # Arrange
-        client = APIClient()
+        factory = APIRequestFactory()
         url = reverse("register")
         data = {
             "email": "invalidemail",
@@ -99,11 +104,12 @@ class UserRegistrationTests(TestCase):
         }
 
         # Act
-        response = client.post(url, data)
+        request = factory.post(url, data)
+        response = RegisterView.as_view()(request)
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
-            response.json()["error"]["detail"],
+            response.data["error"]["detail"],
             EmailIsNotValidException.default_detail,
         )
